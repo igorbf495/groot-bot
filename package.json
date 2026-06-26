@@ -1,0 +1,33 @@
+{
+  "name": "bot-lima-beta",
+  "version": "2.0.0",
+  "description": "Bot Baileys Latest Beta - Discord/WhatsApp Bot",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "NODE_ENV=development node index.js"
+  },
+  "keywords": ["baileys", "whatsapp", "bot", "discord"],
+  "author": "DevLima",
+  "license": "MIT",
+  "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
+    "@whiskeysockets/baileys": "latest",
+    "axios": "^1.13.2",
+    "cheerio": "^1.1.2",
+    "instagram-url-direct": "^2.0.7",
+    "jimp": "^1.6.0",
+    "pino": "^9.0.0",
+    "play-dl": "^1.9.7",
+    "qrcode-terminal": "^0.12.0",
+    "wa-sticker-formatter": "^4.4.4",
+    "ytsr": "^3.8.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.9"
+  }
+}

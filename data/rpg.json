@@ -1,0 +1,647 @@
+{
+  "players": {
+    "122011514888425@lid": {
+      "nome": "CaioMetedor",
+      "classe": "mago",
+      "level": 2,
+      "xp": 140,
+      "hp": 16,
+      "ouro": 123,
+      "inventario": [
+        "cajado_aprendiz",
+        "couro_batido"
+      ],
+      "equipado": {
+        "arma": "cajado_aprendiz",
+        "armadura": "couro_batido"
+      },
+      "stats": {
+        "monstrosMortos": 4,
+        "bossesMortos": 0,
+        "duelosVencidos": 0,
+        "duelosPerdidos": 1,
+        "mortes": 1,
+        "falhasCriticas": 3,
+        "criticos": 5,
+        "dueloStreak": null
+      },
+      "cooldowns": {
+        "cacar": 1769026804333,
+        "duelo": 0,
+        "daily": "Wed Jan 21 2026",
+        "boss": 0,
+        "roubar": 0
+      },
+      "criado": 1768947791681,
+      "atributos": {
+        "vigor": 15,
+        "resistencia": 15,
+        "forca": 15,
+        "destreza": 11,
+        "inteligencia": 14,
+        "fe": 10,
+        "sorte": 14
+      },
+      "raca": "humano",
+      "elo": 1550,
+      "pontosAtributos": 0
+    },
+    "8731702100027@lid": {
+      "nome": "Metiuzord",
+      "classe": "arqueiro",
+      "level": 1,
+      "xp": 0,
+      "hp": 0,
+      "ouro": 200,
+      "inventario": [],
+      "equipado": {
+        "arma": null,
+        "armadura": null
+      },
+      "stats": {
+        "monstrosMortos": 0,
+        "bossesMortos": 0,
+        "duelosVencidos": 0,
+        "duelosPerdidos": 1,
+        "mortes": 1
+      },
+      "cooldowns": {
+        "cacar": 1768949266369,
+        "duelo": 1768950937264,
+        "daily": null,
+        "boss": 0,
+        "roubar": 0
+      },
+      "criado": 1768948928184,
+      "atributos": {
+        "forca": 11,
+        "destreza": 11,
+        "inteligencia": 11,
+        "sorte": 11
+      },
+      "raca": "humano",
+      "pontosAtributos": 0
+    },
+    "97762532143231@lid": {
+      "nome": "vito",
+      "raca": "vampiro",
+      "classe": "mago",
+      "level": 5,
+      "xp": 50,
+      "atributos": {
+        "vigor": 10,
+        "resistencia": 10,
+        "forca": 11,
+        "destreza": 12,
+        "inteligencia": 14,
+        "fe": 10,
+        "sorte": 10
+      },
+      "hp": 22,
+      "ouro": 180,
+      "inventario": [
+        "adaga",
+        "couro_batido"
+      ],
+      "equipado": {
+        "arma": "adaga",
+        "armadura": "couro_batido"
+      },
+      "stats": {
+        "monstrosMortos": 11,
+        "duelosVencidos": 7,
+        "duelosPerdidos": 3,
+        "criticos": 4,
+        "falhasCriticas": 2
+      },
+      "cooldowns": {
+        "duelo": 1768963598379,
+        "daily": "Wed Jan 21 2026",
+        "roubar": 0,
+        "cacar": 1769013821313
+      },
+      "criado": 1768951200992,
+      "elo": 1475,
+      "pontosAtributos": 20
+    },
+    "205389849219117@lid": {
+      "nome": "guinoia",
+      "raca": "vampiro",
+      "classe": "ladino",
+      "level": 13,
+      "xp": 3083,
+      "atributos": {
+        "vigor": 16,
+        "resistencia": 15,
+        "forca": 26,
+        "destreza": 27,
+        "inteligencia": 11,
+        "fe": 10,
+        "sorte": 17
+      },
+      "hp": 58,
+      "ouro": 2127,
+      "inventario": [
+        "espada_ancestral",
+        "alabarda",
+        "bordao_bencao",
+        "placa",
+        "alabarda",
+        "punhais_sombra"
+      ],
+      "equipado": {
+        "arma": "punhais_sombra",
+        "armadura": "placa"
+      },
+      "stats": {
+        "monstrosMortos": 62,
+        "duelosVencidos": 1,
+        "duelosPerdidos": 4,
+        "criticos": 50,
+        "falhasCriticas": 41,
+        "dueloStreak": 0
+      },
+      "cooldowns": {
+        "cacar": 1769027647282,
+        "duelo": 1768993103808,
+        "daily": "Wed Jan 21 2026",
+        "roubar": 1769003356064,
+        "boss": 1769021105403
+      },
+      "criado": 1768952969029,
+      "elo": 1616,
+      "quests": {
+        "atual": {
+          "id": "subir_5_levels",
+          "nome": "Aventureiro Dedicado",
+          "emoji": "⭐",
+          "descricao": "Suba 5 níveis",
+          "objetivo": {
+            "tipo": "levels_ganhos",
+            "quantidade": 5
+          },
+          "recompensa": {
+            "xp": 500,
+            "ouro": 750
+          },
+          "progresso": 0,
+          "completada": false,
+          "dataInicio": 1769002315338
+        }
+      },
+      "pontosAtributos": 0
+    },
+    "270651709477022@lid": {
+      "nome": "Japonegro",
+      "raca": "orc",
+      "classe": "guerreiro",
+      "level": 2,
+      "xp": 60,
+      "atributos": {
+        "vigor": 10,
+        "resistencia": 10,
+        "forca": 16,
+        "destreza": 10,
+        "inteligencia": 8,
+        "fe": 10,
+        "sorte": 10
+      },
+      "hp": 9,
+      "ouro": 124,
+      "inventario": [
+        "espada_longa",
+        "couro_batido"
+      ],
+      "equipado": {
+        "arma": "espada_longa",
+        "armadura": "couro_batido"
+      },
+      "stats": {
+        "monstrosMortos": 3,
+        "duelosVencidos": 1,
+        "duelosPerdidos": 0,
+        "criticos": 0,
+        "falhasCriticas": 0
+      },
+      "cooldowns": {
+        "cacar": 1769109534150,
+        "duelo": 0,
+        "daily": null,
+        "roubar": 0
+      },
+      "criado": 1768953928353,
+      "pontosAtributos": 9,
+      "bossesDerrotadosIds": [],
+      "elo": 1587
+    },
+    "123098108010593@lid": {
+      "nome": "Raphito",
+      "raca": "orc",
+      "classe": "mago",
+      "level": 7,
+      "xp": 701,
+      "atributos": {
+        "vigor": 25,
+        "resistencia": 15,
+        "forca": 15,
+        "destreza": 10,
+        "inteligencia": 12,
+        "fe": 10,
+        "sorte": 12
+      },
+      "hp": 78,
+      "ouro": 632,
+      "inventario": [
+        "adaga_envenenada",
+        "couro",
+        "couro_batido",
+        "cajado_supremo",
+        "alabarda"
+      ],
+      "equipado": {
+        "arma": "cajado_supremo",
+        "armadura": "couro_batido"
+      },
+      "stats": {
+        "monstrosMortos": 29,
+        "duelosVencidos": 0,
+        "duelosPerdidos": 2,
+        "criticos": 15,
+        "falhasCriticas": 20
+      },
+      "cooldowns": {
+        "cacar": 1769036371032,
+        "duelo": 0,
+        "daily": "Wed Jan 21 2026",
+        "roubar": 1769029101763,
+        "boss": 1769033534969
+      },
+      "criado": 1768954154352,
+      "elo": 1471,
+      "quests": {
+        "atual": {
+          "id": "subir_5_levels",
+          "nome": "Aventureiro Dedicado",
+          "emoji": "⭐",
+          "descricao": "Suba 5 níveis",
+          "objetivo": {
+            "tipo": "levels_ganhos",
+            "quantidade": 5
+          },
+          "recompensa": {
+            "xp": 500,
+            "ouro": 750
+          },
+          "progresso": 0,
+          "completada": false,
+          "dataInicio": 1769002328975
+        }
+      },
+      "pontosAtributos": 0,
+      "inventarioLeveling": {
+        "cajado_supremo": {
+          "level": 0
+        }
+      },
+      "bossesDerrotadosIds": []
+    },
+    "179267824554207@lid": {
+      "nome": "chupacu",
+      "raca": "vampiro",
+      "classe": "guerreiro",
+      "level": 1,
+      "xp": 55,
+      "atributos": {
+        "forca": 14,
+        "destreza": 12,
+        "inteligencia": 11,
+        "sorte": 9
+      },
+      "hp": 2,
+      "ouro": 400,
+      "inventario": [
+        "espada_curta"
+      ],
+      "equipado": {
+        "arma": null,
+        "armadura": null
+      },
+      "stats": {
+        "monstrosMortos": 1,
+        "duelosVencidos": 0,
+        "duelosPerdidos": 0,
+        "criticos": 1,
+        "falhasCriticas": 2
+      },
+      "cooldowns": {
+        "cacar": 1768963973057,
+        "duelo": 0,
+        "daily": "Tue Jan 20 2026",
+        "roubar": 0
+      },
+      "criado": 1768955086963,
+      "elo": 1587,
+      "pontosAtributos": 0
+    },
+    "124369837785336@lid": {
+      "nome": "Jalim_Habbey",
+      "raca": "orc",
+      "classe": "mago",
+      "level": 23,
+      "xp": 407,
+      "atributos": {
+        "vigor": 25,
+        "resistencia": 21,
+        "forca": 23,
+        "destreza": 13,
+        "inteligencia": 36,
+        "fe": 10,
+        "sorte": 17
+      },
+      "hp": 301,
+      "ouro": 29556,
+      "inventario": [
+        "amuleto_vitalidade",
+        "placa_dragao",
+        "bordao_bencao",
+        "cajado_supremo",
+        "arco_composto",
+        "cajado_gelo",
+        "espada_dragao",
+        "maca_sagrada",
+        "couro",
+        "adaga_envenenada",
+        "couro_pica",
+        "espada_gelo",
+        "cajado_aprendiz_plus",
+        "placa",
+        "couro_pica",
+        "manto_sombra",
+        "espada_mistica",
+        "arco_composto",
+        "colar_sabedoria",
+        "besta_pesada"
+      ],
+      "equipado": {
+        "arma": "cajado_gelo",
+        "armadura": "couro_pica"
+      },
+      "stats": {
+        "monstrosMortos": 107,
+        "duelosVencidos": 4,
+        "duelosPerdidos": 2,
+        "criticos": 86,
+        "falhasCriticas": 110,
+        "dueloStreak": 2,
+        "bossesDerrotados": 14
+      },
+      "cooldowns": {
+        "cacar": 1769122880846,
+        "duelo": 1768965530361,
+        "daily": "Wed Jan 21 2026",
+        "roubar": 1769003339516,
+        "boss": 1769102954368
+      },
+      "criado": 1768957902402,
+      "elo": 1691,
+      "quests": {
+        "atual": {
+          "id": "subir_5_levels",
+          "nome": "Aventureiro Dedicado",
+          "emoji": "⭐",
+          "descricao": "Suba 5 níveis",
+          "objetivo": {
+            "tipo": "levels_ganhos",
+            "quantidade": 5
+          },
+          "recompensa": {
+            "xp": 500,
+            "ouro": 750
+          },
+          "progresso": 0,
+          "completada": false,
+          "dataInicio": 1768968028681
+        }
+      },
+      "pontosAtributos": 3,
+      "bossesDerrotadosIds": [
+        "rei_goblin",
+        "rainha_aranhas",
+        "bruxa_negra",
+        "lich_antigo",
+        "senhor_dragao",
+        "titan_pedra",
+        "hidra_venenosa",
+        "cavaleiro_carmesim",
+        "arauto_tempestade",
+        "margit",
+        "godrick",
+        "rennala",
+        "radahn",
+        "malenia"
+      ],
+      "inventarioLeveling": {
+        "cajado_gelo": {
+          "level": 3,
+          "xp": null
+        },
+        "placa_dragao": {
+          "level": 0
+        },
+        "couro_pica": {
+          "level": 2,
+          "xp": null
+        }
+      },
+      "upgradeStones": {
+        "rara": 0,
+        "boss": 0
+      }
+    },
+    "6537376481304@lid": {
+      "nome": "Igo",
+      "raca": "orc",
+      "classe": "guerreiro",
+      "level": 23,
+      "xp": 23778,
+      "atributos": {
+        "vigor": 31,
+        "resistencia": 28,
+        "forca": 51,
+        "destreza": 10,
+        "inteligencia": 8,
+        "fe": 10,
+        "sorte": 10
+      },
+      "hp": 0,
+      "ouro": 20799,
+      "inventario": [
+        "espada_curta",
+        "espada_grande",
+        "cota_malha",
+        "espada_mistica",
+        "espada_ancestral",
+        "adaga",
+        "espada_dragao",
+        "placa_dragao",
+        "pocao_hp_suprema",
+        "couro",
+        "besta_noite",
+        "shifu",
+        "cota_dragao",
+        "adaga",
+        "armadura_insana"
+      ],
+      "equipado": {
+        "arma": "shifu",
+        "armadura": "armadura_insana"
+      },
+      "stats": {
+        "monstrosMortos": 96,
+        "duelosVencidos": 4,
+        "duelosPerdidos": 0,
+        "criticos": 73,
+        "falhasCriticas": 67,
+        "dueloStreak": 2,
+        "bossesDerrotados": 17
+      },
+      "cooldowns": {
+        "cacar": 1769119236927,
+        "duelo": 1768965712866,
+        "daily": "Thu Jan 22 2026",
+        "roubar": 0,
+        "boss": 1769035945329
+      },
+      "criado": 1768959554524,
+      "elo": 1828,
+      "pontosAtributos": 0,
+      "bossesDerrotadosIds": [
+        "rei_goblin",
+        "bruxa_negra",
+        "rainha_aranhas",
+        "arauto_tempestade",
+        "lich_antigo",
+        "senhor_dragao",
+        "titan_pedra",
+        "hidra_venenosa",
+        "cavaleiro_carmesim",
+        "margit",
+        "godrick",
+        "rennala",
+        "radahn",
+        "malenia"
+      ],
+      "inventarioLeveling": {
+        "espada_dragao": {
+          "level": 0,
+          "xp": null
+        },
+        "placa_dragao": {
+          "level": 94,
+          "xp": 13
+        },
+        "shifu": {
+          "level": 275,
+          "xp": 27
+        },
+        "armadura_insana": {
+          "level": 23,
+          "xp": 85
+        }
+      }
+    },
+    "217622033469608@lid": {
+      "nome": "Sinistro",
+      "raca": "vampiro",
+      "classe": "ladino",
+      "level": 10,
+      "xp": 912,
+      "atributos": {
+        "vigor": 15,
+        "resistencia": 10,
+        "forca": 17,
+        "destreza": 15,
+        "inteligencia": 17,
+        "fe": 15,
+        "sorte": 20
+      },
+      "hp": 0,
+      "ouro": 369,
+      "inventario": [
+        "espada_curta",
+        "couro_batido",
+        "espada_mistica",
+        "meia_placa",
+        "machado_guerra",
+        "alabarda",
+        "punhais_sombra"
+      ],
+      "equipado": {
+        "arma": "punhais_sombra",
+        "armadura": "meia_placa"
+      },
+      "stats": {
+        "monstrosMortos": 59,
+        "duelosVencidos": 1,
+        "duelosPerdidos": 3,
+        "criticos": 77,
+        "falhasCriticas": 57,
+        "dueloStreak": 0
+      },
+      "cooldowns": {
+        "cacar": 1769036358713,
+        "duelo": 1768965586477,
+        "daily": "Wed Jan 21 2026",
+        "roubar": 0,
+        "boss": 1769023500923
+      },
+      "criado": 1768961740030,
+      "elo": 1595,
+      "pontosAtributos": 3
+    },
+    "100712872726572@lid": {
+      "nome": "shardeum",
+      "raca": "anao",
+      "classe": "mago",
+      "level": 1,
+      "xp": 0,
+      "atributos": {
+        "vigor": 10,
+        "resistencia": 10,
+        "forca": 11,
+        "destreza": 9,
+        "inteligencia": 13,
+        "fe": 10,
+        "sorte": 11
+      },
+      "pontosAtributos": 0,
+      "hp": 10,
+      "ouro": 245,
+      "elo": 1600,
+      "inventario": [],
+      "equipado": {
+        "arma": null,
+        "armadura": null
+      },
+      "stats": {
+        "monstrosMortos": 0,
+        "duelosVencidos": 0,
+        "duelosPerdidos": 0,
+        "criticos": 0,
+        "falhasCriticas": 0,
+        "dueloStreak": 0,
+        "dueloXpPerdido": 0,
+        "bossesDerrotados": 0
+      },
+      "cooldowns": {
+        "cacar": 1769034674076,
+        "duelo": 0,
+        "boss": 0,
+        "daily": null,
+        "roubar": 0
+      },
+      "criado": 1769034476008
+    }
+  },
+  "bosses": {}
+}
