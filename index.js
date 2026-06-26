@@ -15,8 +15,8 @@ import { CONFIG } from './src/config.js';
 import { getBody } from './src/utils.js';
 
 // Comandos
-import { handleSticker, handleVV, menuMidia } from './src/commands/midia.js';
-import { handleGayFeio, handlePica, handleBomDia, handleMoeda, handleXingar, handleCasal, handleSorteio, handleMeme, menuDiversao } from './src/commands/diversao.js';
+import { handleSticker, handleTTP, handleVV, menuMidia } from './src/commands/midia.js';
+import { handleGayFeio, handlePica, handleBomDia, handleMoeda, handleXingar, handleCasal, handleSorteio, handleMeme, handleConselho, handleChance, handleTop5, menuDiversao } from './src/commands/diversao.js';
 import { handleBanPromover, handleMarcar, handleRoletaRussa, handleAdd, menuAdmin } from './src/commands/admin.js';
 import { handleStatus, handleMenu, handleHelp, menuSistema } from './src/commands/sistema.js';
 import { handlePlay, menuMusica } from './src/commands/musica.js';
@@ -170,6 +170,9 @@ const startBot = async () => {
                         case CONFIG.CMDS.STICKER_FULL:
                             await handleSticker(sock, msg, jid, command, logger, reply, react);
                             break;
+                        case CONFIG.CMDS.TTP:
+                            await handleTTP(sock, msg, jid, cmdArgs, reply, react);
+                            break;
                         case CONFIG.CMDS.VV:
                         case CONFIG.CMDS.WW:
                             await handleVV(sock, msg, jid, sender, command, logger, reply, react);
@@ -232,6 +235,15 @@ const startBot = async () => {
                             break;
                         case CONFIG.CMDS.MEME:
                             await handleMeme(sock, msg, jid, reply, react);
+                            break;
+                        case CONFIG.CMDS.CONSELHO:
+                            await handleConselho(reply, react);
+                            break;
+                        case CONFIG.CMDS.CHANCE:
+                            await handleChance(cmdArgs, reply, react);
+                            break;
+                        case CONFIG.CMDS.TOP5:
+                            await handleTop5(sock, msg, jid, isGroup, groupMetadata, cmdArgs, reply, react);
                             break;
 
                         // 👮 ADMIN

@@ -228,6 +228,93 @@ export async function handleMeme(sock, msg, jid, reply, react) {
     }
 }
 
+export async function handleConselho(reply, react) {
+    await react('🧠');
+    const conselhos = [
+        'Nao discuta com print. Ele sempre ganha.',
+        'Antes de mandar audio de 3 minutos, respire e pense no proximo.',
+        'Quem some demais vira figurante na propria fofoca.',
+        'Se deu vontade de mandar indireta, beba agua primeiro.',
+        'Nem todo "kkkk" significa paz. As vezes e so diplomacia.',
+        'Nao compre briga que nao cabe no seu pacote de internet.',
+        'Quem tem grupo tem paciencia. Quem tem paciencia sobrevive.',
+        'Se a conversa esquentou, mande figurinha e saia andando.',
+        'Todo mundo erra. O problema e errar com caps lock ligado.',
+        'Nao prometa rolê antes de consultar sua preguiça.'
+    ];
+    const conselho = conselhos[Math.floor(Math.random() * conselhos.length)];
+
+    return reply(`
+╭──────────────────────╮
+│ 🧠 *CONSELHO DO BOT*
+├──────────────────────┤
+│
+│ ${conselho}
+│
+╰──────────────────────╯`);
+}
+
+export async function handleChance(cmdArgs, reply, react) {
+    const tema = cmdArgs.trim() || 'isso acontecer';
+    const pct = Math.floor(Math.random() * 101);
+    const comentarios = [
+        'As estrelas tao desconfiadas.',
+        'O grupo inteiro sentiu essa energia.',
+        'Tem potencial, mas tem perigo.',
+        'Hoje o destino acordou debochado.',
+        'Nao apostaria dinheiro, mas apostaria uma figurinha.',
+        'Isso ai ta com cara de plot twist.'
+    ];
+    const comentario = comentarios[Math.floor(Math.random() * comentarios.length)];
+
+    await react('🎯');
+    return reply(`
+╭──────────────────────╮
+│ 🎯 *CHANCE*
+├──────────────────────┤
+│
+│ Chance de *${tema}*:
+│ ${createBar(pct)}
+│
+│ 💬 _${comentario}_
+│
+╰──────────────────────╯`);
+}
+
+export async function handleTop5(sock, msg, jid, isGroup, groupMetadata, cmdArgs, reply, react) {
+    if (!isGroup) {
+        return reply('❌ Este comando só funciona em grupos!');
+    }
+
+    const tema = cmdArgs.trim() || 'mais suspeitos';
+    const participantes = [...groupMetadata.participants];
+    if (participantes.length < 2) {
+        return reply('❌ Precisa de mais gente no grupo para montar top 5.');
+    }
+
+    await react('🏆');
+    const sorteados = participantes
+        .sort(() => Math.random() - 0.5)
+        .slice(0, Math.min(5, participantes.length))
+        .map(p => p.id);
+
+    const medalhas = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+    const lista = sorteados.map((id, i) => `│ ${medalhas[i]} @${id.split('@')[0]}`).join('\n');
+
+    return sock.sendMessage(jid, {
+        text: `
+╭──────────────────────╮
+│ 🏆 *TOP ${sorteados.length}*
+├──────────────────────┤
+│ Tema: *${tema}*
+│
+${lista}
+│
+╰──────────────────────╯`,
+        mentions: sorteados
+    }, { quoted: msg });
+}
+
 export function menuDiversao(reply) {
     const menu = `
 ╭───────────────────────╮
@@ -273,6 +360,16 @@ export function menuDiversao(reply) {
 │ 😂 *${CONFIG.PREFIX}meme*
 │   └ Envia um meme aleatório
 │   └ Direto da internet
+│
+│ 🧠 *${CONFIG.PREFIX}conselho*
+│   └ Conselho duvidoso
+│
+│ 🎯 *${CONFIG.PREFIX}chance* texto
+│   └ Mede a chance de algo
+│
+│ 🏆 *${CONFIG.PREFIX}top5* tema
+│   └ Ranking aleatório
+│   └ ⚠️ Só em grupos
 │
 ╰───────────────────────╯`;
     return reply(menu);

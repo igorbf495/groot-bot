@@ -24,6 +24,7 @@ export const CONFIG = {
         // 🎨 Mídia
         STICKER: 'fig',
         STICKER_FULL: 'figfull',
+        TTP: 'ttp',
         VV: 'vv',
         WW: 'ww',
 
@@ -37,6 +38,9 @@ export const CONFIG = {
         SORTEIO: 'sorteio',
         XINGAR: 'xingar',
         MEME: 'meme',
+        CONSELHO: 'conselho',
+        CHANCE: 'chance',
+        TOP5: 'top5',
 
         // 👮 Admin
         BAN: 'ban',
