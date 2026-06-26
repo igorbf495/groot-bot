@@ -47,6 +47,7 @@ app-state-sync-*.json
 tmp/
 temp/
 .tmp/
+data/allowed-chats.json
 
 # Player scripts gerados
 *-player-script.js

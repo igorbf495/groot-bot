@@ -54,6 +54,10 @@ export const CONFIG = {
         MENU: 'menu',
         STATUS: 'status',
         HELP: 'help',
+        ATIVAR_BOT: 'ativarbot',
+        DESATIVAR_BOT: 'desativarbot',
+        CHATS_BOT: 'chatsbot',
+        CHAT_ID: 'chatid',
 
         // 🎵 Música / Áudio
         PLAY: 'play',

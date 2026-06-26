@@ -13,6 +13,7 @@ import fs from 'fs';
 // ==================== IMPORTS DOS MODULOS ====================
 import { CONFIG } from './src/config.js';
 import { getBody } from './src/utils.js';
+import { allowChat, blockChat, isChatAllowed, listAllowedChats } from './src/chatAccess.js';
 
 // Comandos
 import { handleSticker, handleTTP, handleVV, menuMidia } from './src/commands/midia.js';
@@ -30,6 +31,12 @@ import {
 } from './src/commands/rpg.js';
 
 const logger = Pino({ level: 'silent' });
+const CHAT_ACCESS_COMMANDS = new Set([
+    CONFIG.CMDS.ATIVAR_BOT,
+    CONFIG.CMDS.DESATIVAR_BOT,
+    CONFIG.CMDS.CHATS_BOT,
+    CONFIG.CMDS.CHAT_ID
+]);
 
 // Helper para timeout em promises
 const withTimeout = (promise, ms) => {
@@ -113,6 +120,14 @@ const startBot = async () => {
 
                     const reply = (txt) => sock.sendMessage(jid, { text: txt }, { quoted: msg });
                     const react = (emoji) => sock.sendMessage(jid, { react: { text: emoji, key: msg.key } });
+                    const senderNum = sender.split('@')[0];
+                    const donoNum = CONFIG.DONO_BOT.split('@')[0];
+                    const isOwner = senderNum === donoNum;
+
+                    if (!isChatAllowed(jid) && !CHAT_ACCESS_COMMANDS.has(command)) {
+                        console.log(`[BLOQUEADO] Chat nao autorizado: ${jid}`);
+                        return;
+                    }
 
                     let isAdmin = false;
                     let isBotAdmin = true; // Assumir que é admin, API vai falhar se não for
@@ -129,6 +144,42 @@ const startBot = async () => {
                     // ==================== ROUTER ====================
                     console.log(`[COMANDO] ${command} de ${sender}`);
                     switch (command) {
+                        // 🔐 CONTROLE DE CHATS
+                        case CONFIG.CMDS.ATIVAR_BOT:
+                            if (!isOwner && !(isGroup && isAdmin)) {
+                                return reply('Apenas o dono do bot ou admin do grupo pode ativar este chat.');
+                            }
+                            allowChat(jid);
+                            await react('✅');
+                            await reply(`✅ Bot ativado neste chat.\n\nID: ${jid}`);
+                            break;
+                        case CONFIG.CMDS.DESATIVAR_BOT:
+                            if (!isOwner && !(isGroup && isAdmin)) {
+                                return reply('Apenas o dono do bot ou admin do grupo pode desativar este chat.');
+                            }
+                            blockChat(jid);
+                            await react('🔒');
+                            await reply(`🔒 Bot desativado neste chat.\n\nID: ${jid}`);
+                            break;
+                        case CONFIG.CMDS.CHATS_BOT:
+                            if (!isOwner) return reply('Apenas o dono do bot pode listar chats.');
+                            {
+                                const chats = listAllowedChats();
+                                const lista = chats.length
+                                    ? chats.map((chat, i) => `${i + 1}. ${chat}`).join('\n')
+                                    : 'Nenhum chat liberado.';
+                                await react('📜');
+                                await reply(`📜 *CHATS LIBERADOS*\n\n${lista}`);
+                            }
+                            break;
+                        case CONFIG.CMDS.CHAT_ID:
+                            if (!isOwner && !(isGroup && isAdmin)) {
+                                return reply('Apenas o dono do bot ou admin do grupo pode ver o ID deste chat.');
+                            }
+                            await react('🆔');
+                            await reply(`🆔 *ID deste chat:*\n${jid}`);
+                            break;
+
                         // 📚 SUBMENUS
                         case CONFIG.CMDS.MENU_DOWNLOADS:
                             await menuDownloads(reply);

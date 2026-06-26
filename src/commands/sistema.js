@@ -161,6 +161,18 @@ export function menuSistema(reply) {
 │ 📖 *${CONFIG.PREFIX}help*
 │   └ Manual completo
 │   └ Explica tudo!
+│
+│ 🔐 *${CONFIG.PREFIX}ativarbot*
+│   └ Libera comandos neste chat
+│
+│ 🔒 *${CONFIG.PREFIX}desativarbot*
+│   └ Bloqueia comandos neste chat
+│
+│ 📜 *${CONFIG.PREFIX}chatsbot*
+│   └ Lista chats liberados
+│
+│ 🆔 *${CONFIG.PREFIX}chatid*
+│   └ Mostra o ID deste chat
 
  │ 🔎 *${CONFIG.PREFIX}${CONFIG.CMDS.GOOGLE}* <termo>
  │   └ Busca (Wiki)
