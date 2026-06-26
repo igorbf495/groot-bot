@@ -194,6 +194,39 @@ export async function handleAdd(sock, msg, jid, cmdArgs, isGroup, isAdmin, isBot
     }
 }
 
+export async function handleLigar(sock, msg, jid, sender, cmdArgs, isGroup, isAdmin, reply, react) {
+    const senderNum = sender.split('@')[0];
+    const donoNum = CONFIG.DONO_BOT.split('@')[0];
+    const isOwner = senderNum === donoNum;
+
+    if (isGroup && !isAdmin && !isOwner) {
+        return reply('╭──────────────╮\n│ 🚫 *NEGADO*       │\n├──────────────┤\n│ Apenas admins     │\n│ podem usar este   │\n│ comando!          │\n╰──────────────╯');
+    }
+
+    const contextInfo = msg.message?.extendedTextMessage?.contextInfo;
+    let target = contextInfo?.mentionedJid?.[0] || contextInfo?.participant || null;
+
+    if (!target && cmdArgs) {
+        const numero = cmdArgs.replace(/\D/g, '');
+        if (numero.length >= 10) {
+            target = `${numero}@s.whatsapp.net`;
+        }
+    }
+
+    if (!target) {
+        return reply(`Uso: *${CONFIG.PREFIX}${CONFIG.CMDS.LIGAR} @pessoa*\nTambém funciona respondendo uma mensagem da pessoa.`);
+    }
+
+    await react('📞');
+    const targetNum = target.split('@')[0];
+    const callerNum = sender.split('@')[0];
+
+    return sock.sendMessage(jid, {
+        text: `╭──────────────────────╮\n│ 📞 *PEDIDO DE LIGAÇÃO*\n├──────────────────────┤\n│\n│ @${targetNum}\n│ @${callerNum} quer falar com você.\n│\n│ Toque no contato e escolha chamada\n│ de voz pelo WhatsApp.\n│\n╰──────────────────────╯`,
+        mentions: [target, sender]
+    }, { quoted: msg });
+}
+
 export function menuAdmin(reply) {
     const menu = `
 ╭───────────────────────╮
@@ -203,6 +236,9 @@ export function menuAdmin(reply) {
 │
 │ ➕ *${CONFIG.PREFIX}add* número
 │   └ Adiciona ao grupo
+│
+│ 📞 *${CONFIG.PREFIX}ligar* @user
+│   └ Pede ligação para alguém
 │
 │ 🚫 *${CONFIG.PREFIX}ban* @user
 │   └ Remove do grupo

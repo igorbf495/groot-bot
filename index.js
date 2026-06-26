@@ -18,7 +18,7 @@ import { addAllowedCommands, allowChat, blockChat, getChatAccess, isChatAllowed,
 // Comandos
 import { handleSticker, handleTTP, handleVV, menuMidia } from './src/commands/midia.js';
 import { handleGayFeio, handlePica, handleBomDia, handleMoeda, handleXingar, handleCasal, handleSorteio, handleMeme, handleConselho, handleChance, handleTop5, menuDiversao } from './src/commands/diversao.js';
-import { handleBanPromover, handleMarcar, handleRoletaRussa, handleAdd, menuAdmin } from './src/commands/admin.js';
+import { handleBanPromover, handleMarcar, handleRoletaRussa, handleAdd, handleLigar, menuAdmin } from './src/commands/admin.js';
 import { handleStatus, handleMenu, handleHelp, menuSistema } from './src/commands/sistema.js';
 import { handlePlay, menuMusica } from './src/commands/musica.js';
 import { handleAudio } from './src/commands/audio.js';
@@ -49,7 +49,7 @@ const COMMAND_GROUPS = {
     diversao: [CONFIG.CMDS.MENU_DIVERSAO, CONFIG.CMDS.GAY, CONFIG.CMDS.FEIO, CONFIG.CMDS.PICA, CONFIG.CMDS.BOMDIA, CONFIG.CMDS.MOEDA, CONFIG.CMDS.CASAL, CONFIG.CMDS.SORTEIO, CONFIG.CMDS.XINGAR, CONFIG.CMDS.MEME, CONFIG.CMDS.CONSELHO, CONFIG.CMDS.CHANCE, CONFIG.CMDS.TOP5],
     downloads: [CONFIG.CMDS.MENU_DOWNLOADS, CONFIG.CMDS.VIDEO, CONFIG.CMDS.TIKTOK, CONFIG.CMDS.INSTA, CONFIG.CMDS.FACE, CONFIG.CMDS.TWITTER],
     musica: [CONFIG.CMDS.MENU_MUSICA, CONFIG.CMDS.PLAY, CONFIG.CMDS.AUDIO],
-    admin: [CONFIG.CMDS.MENU_ADMIN, CONFIG.CMDS.ADD, CONFIG.CMDS.BAN, CONFIG.CMDS.PROMOVER, CONFIG.CMDS.REBAIXAR, CONFIG.CMDS.MARCAR, CONFIG.CMDS.ROLETARUSSA],
+    admin: [CONFIG.CMDS.MENU_ADMIN, CONFIG.CMDS.ADD, CONFIG.CMDS.LIGAR, CONFIG.CMDS.BAN, CONFIG.CMDS.PROMOVER, CONFIG.CMDS.REBAIXAR, CONFIG.CMDS.MARCAR, CONFIG.CMDS.ROLETARUSSA],
     sistema: [CONFIG.CMDS.MENU_SISTEMA, CONFIG.CMDS.MENU, CONFIG.CMDS.STATUS, CONFIG.CMDS.HELP],
     rpg: [CONFIG.CMDS.MENU_RPG, CONFIG.CMDS.TUTORIAL, CONFIG.CMDS.CRIARPJ, CONFIG.CMDS.PERFIL, CONFIG.CMDS.FICHA, CONFIG.CMDS.RPG_STATUS, CONFIG.CMDS.CACAR, CONFIG.CMDS.BOSS, CONFIG.CMDS.BOSSES, CONFIG.CMDS.MONSTROS, CONFIG.CMDS.SKILL, CONFIG.CMDS.DUELO, CONFIG.CMDS.LOJA, CONFIG.CMDS.COMPRAR, CONFIG.CMDS.VENDER, CONFIG.CMDS.EQUIPAR, CONFIG.CMDS.INVENTARIO, CONFIG.CMDS.USAR, CONFIG.CMDS.CURAR, CONFIG.CMDS.DAILY, CONFIG.CMDS.GOLD, CONFIG.CMDS.RANKING, CONFIG.CMDS.RANKING_ELO, CONFIG.CMDS.RANKING_BOSS, CONFIG.CMDS.ROUBAR, CONFIG.CMDS.QUESTS, CONFIG.CMDS.COMPLETARQUEST, CONFIG.CMDS.RANKING_JOGADOR, CONFIG.CMDS.STATS, CONFIG.CMDS.UPGRADE]
 };
@@ -398,6 +398,9 @@ const startBot = async () => {
                         // 👮 ADMIN
                         case CONFIG.CMDS.ADD:
                             await handleAdd(sock, msg, jid, cmdArgs, isGroup, isAdmin, isBotAdmin, reply);
+                            break;
+                        case CONFIG.CMDS.LIGAR:
+                            await handleLigar(sock, msg, jid, sender, cmdArgs, isGroup, isAdmin, reply, react);
                             break;
                         case CONFIG.CMDS.BAN:
                         case CONFIG.CMDS.PROMOVER:

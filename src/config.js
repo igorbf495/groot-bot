@@ -45,6 +45,7 @@ export const CONFIG = {
         // 👮 Admin
         BAN: 'ban',
         ADD: 'add',
+        LIGAR: 'ligar',
         PROMOVER: 'promover',
         REBAIXAR: 'rebaixar',
         MARCAR: 'marcar',
