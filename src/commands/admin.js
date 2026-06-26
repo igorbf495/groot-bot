@@ -220,9 +220,14 @@ export async function handleLigar(sock, msg, jid, sender, cmdArgs, isGroup, isAd
     await react('📞');
     const targetNum = target.split('@')[0];
     const callerNum = sender.split('@')[0];
+    const callToken = await sock.createCallLink?.('audio');
+    if (!callToken) {
+        return reply('Não consegui criar o link de chamada pelo WhatsApp agora.');
+    }
+    const callLink = `https://call.whatsapp.com/voice/${callToken}`;
 
     return sock.sendMessage(jid, {
-        text: `╭──────────────────────╮\n│ 📞 *PEDIDO DE LIGAÇÃO*\n├──────────────────────┤\n│\n│ @${targetNum}\n│ @${callerNum} quer falar com você.\n│\n│ Toque no contato e escolha chamada\n│ de voz pelo WhatsApp.\n│\n╰──────────────────────╯`,
+        text: `╭──────────────────────╮\n│ 📞 *CHAMADA DO GROOT*\n├──────────────────────┤\n│\n│ @${targetNum}\n│ @${callerNum} iniciou uma chamada.\n│\n│ Entrar na chamada:\n│ ${callLink}\n│\n╰──────────────────────╯`,
         mentions: [target, sender]
     }, { quoted: msg });
 }
