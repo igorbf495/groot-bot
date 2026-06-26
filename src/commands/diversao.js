@@ -1,5 +1,6 @@
 import { CONFIG } from '../config.js';
 import { createBar } from '../utils.js';
+import axios from 'axios';
 
 // ==================== COMANDOS DE DIVERSÃO ====================
 
@@ -192,17 +193,24 @@ export async function handleSorteio(sock, msg, jid, isGroup, groupMetadata, repl
 export async function handleMeme(sock, msg, jid, reply, react) {
     try {
         await react('😂');
-        
+
         // Busca meme de uma API pública
-        const response = await fetch('https://api.imgflip.com/get_memes');
-        const data = await response.json();
-        
-        if (!data.success || !data.memes || data.memes.length === 0) {
+        const { data } = await axios.get('https://api.imgflip.com/get_memes', {
+            timeout: 12000
+        });
+        const memes = data?.data?.memes || [];
+
+        if (!data?.success || memes.length === 0) {
             return reply('❌ Erro ao buscar meme. Tente novamente!');
         }
-        
+
         // Seleciona um meme aleatório
-        const meme = data.memes[Math.floor(Math.random() * data.memes.length)];
+        const meme = memes[Math.floor(Math.random() * memes.length)];
+        const imageResponse = await axios.get(meme.url, {
+            responseType: 'arraybuffer',
+            timeout: 15000
+        });
+        const imageBuffer = Buffer.from(imageResponse.data);
         
         // Envia a imagem do meme
         const memeMsg = `
@@ -216,8 +224,8 @@ export async function handleMeme(sock, msg, jid, reply, react) {
         
         // Envia mensagem + imagem
         await sock.sendMessage(jid, { text: memeMsg }, { quoted: msg });
-        await sock.sendMessage(jid, { 
-            image: { url: meme.url },
+        await sock.sendMessage(jid, {
+            image: imageBuffer,
             caption: meme.name
         }, { quoted: msg });
         
