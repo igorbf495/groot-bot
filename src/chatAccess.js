@@ -14,16 +14,24 @@ function loadAccessData() {
     try {
         ensureDataDir();
         if (!fs.existsSync(ACCESS_FILE)) {
-            return { allowedChats: [] };
+            return { chats: {} };
         }
 
         const data = JSON.parse(fs.readFileSync(ACCESS_FILE, 'utf-8'));
+        if (Array.isArray(data.allowedChats)) {
+            const chats = {};
+            for (const jid of data.allowedChats) {
+                chats[jid] = { mode: 'all', commands: [] };
+            }
+            return { chats };
+        }
+
         return {
-            allowedChats: Array.isArray(data.allowedChats) ? data.allowedChats : []
+            chats: data.chats && typeof data.chats === 'object' ? data.chats : {}
         };
     } catch (error) {
         console.error('[CHAT ACCESS] Erro ao carregar lista:', error.message);
-        return { allowedChats: [] };
+        return { chats: {} };
     }
 }
 
@@ -34,31 +42,69 @@ function saveAccessData(data) {
 
 export function isChatAllowed(jid) {
     const data = loadAccessData();
-    return data.allowedChats.includes(jid);
+    return !!data.chats[jid];
 }
 
-export function allowChat(jid) {
+export function isCommandAllowed(jid, command) {
     const data = loadAccessData();
-    if (!data.allowedChats.includes(jid)) {
-        data.allowedChats.push(jid);
-        saveAccessData(data);
+    const chat = data.chats[jid];
+    if (!chat) return false;
+    if (chat.mode === 'all') return true;
+    return Array.isArray(chat.commands) && chat.commands.includes(command);
+}
+
+export function allowChat(jid, commands = null) {
+    const data = loadAccessData();
+    data.chats[jid] = Array.isArray(commands)
+        ? { mode: 'custom', commands: [...new Set(commands)] }
+        : { mode: 'all', commands: [] };
+    saveAccessData(data);
+    return data.chats[jid];
+}
+
+export function addAllowedCommands(jid, commands) {
+    const data = loadAccessData();
+    const current = data.chats[jid] || { mode: 'custom', commands: [] };
+    if (current.mode === 'all') {
+        return current;
     }
 
-    return data.allowedChats;
+    current.mode = 'custom';
+    current.commands = [...new Set([...(current.commands || []), ...commands])];
+    data.chats[jid] = current;
+    saveAccessData(data);
+    return current;
+}
+
+export function removeAllowedCommands(jid, commands) {
+    const data = loadAccessData();
+    const current = data.chats[jid];
+    if (!current) return null;
+    if (current.mode === 'all') {
+        current.mode = 'custom';
+        current.commands = [];
+    } else {
+        current.commands = (current.commands || []).filter(command => !commands.includes(command));
+    }
+
+    data.chats[jid] = current;
+    saveAccessData(data);
+    return current;
 }
 
 export function blockChat(jid) {
     const data = loadAccessData();
-    const before = data.allowedChats.length;
-    data.allowedChats = data.allowedChats.filter(chat => chat !== jid);
+    delete data.chats[jid];
+    saveAccessData(data);
 
-    if (data.allowedChats.length !== before) {
-        saveAccessData(data);
-    }
-
-    return data.allowedChats;
+    return data.chats;
 }
 
 export function listAllowedChats() {
-    return loadAccessData().allowedChats;
+    const data = loadAccessData();
+    return Object.entries(data.chats).map(([jid, access]) => ({ jid, ...access }));
+}
+
+export function getChatAccess(jid) {
+    return loadAccessData().chats[jid] || null;
 }

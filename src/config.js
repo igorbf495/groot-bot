@@ -56,6 +56,8 @@ export const CONFIG = {
         HELP: 'help',
         ATIVAR_BOT: 'ativarbot',
         DESATIVAR_BOT: 'desativarbot',
+        LIBERAR_CMD: 'liberarcmd',
+        BLOQUEAR_CMD: 'bloquearcmd',
         CHATS_BOT: 'chatsbot',
         CHAT_ID: 'chatid',
 

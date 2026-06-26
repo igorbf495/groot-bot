@@ -164,6 +164,15 @@ export function menuSistema(reply) {
 │
 │ 🔐 *${CONFIG.PREFIX}ativarbot*
 │   └ Libera comandos neste chat
+│   └ Ex: !ativarbot figurinhas
+│
+│ ✅ *${CONFIG.PREFIX}liberarcmd*
+│   └ Libera categoria/comando
+│   └ Ex: !liberarcmd meme play
+│
+│ ⛔ *${CONFIG.PREFIX}bloquearcmd*
+│   └ Bloqueia categoria/comando
+│   └ Ex: !bloquearcmd downloads
 │
 │ 🔒 *${CONFIG.PREFIX}desativarbot*
 │   └ Bloqueia comandos neste chat

@@ -13,7 +13,7 @@ import fs from 'fs';
 // ==================== IMPORTS DOS MODULOS ====================
 import { CONFIG } from './src/config.js';
 import { getBody } from './src/utils.js';
-import { allowChat, blockChat, isChatAllowed, listAllowedChats } from './src/chatAccess.js';
+import { addAllowedCommands, allowChat, blockChat, getChatAccess, isChatAllowed, isCommandAllowed, listAllowedChats, removeAllowedCommands } from './src/chatAccess.js';
 
 // Comandos
 import { handleSticker, handleTTP, handleVV, menuMidia } from './src/commands/midia.js';
@@ -34,9 +34,56 @@ const logger = Pino({ level: 'silent' });
 const CHAT_ACCESS_COMMANDS = new Set([
     CONFIG.CMDS.ATIVAR_BOT,
     CONFIG.CMDS.DESATIVAR_BOT,
+    CONFIG.CMDS.LIBERAR_CMD,
+    CONFIG.CMDS.BLOQUEAR_CMD,
     CONFIG.CMDS.CHATS_BOT,
     CONFIG.CMDS.CHAT_ID
 ]);
+const COMMAND_GROUPS = {
+    todos: ['*'],
+    all: ['*'],
+    figurinhas: [CONFIG.CMDS.STICKER, CONFIG.CMDS.STICKER_FULL, CONFIG.CMDS.TTP],
+    sticker: [CONFIG.CMDS.STICKER, CONFIG.CMDS.STICKER_FULL, CONFIG.CMDS.TTP],
+    stickers: [CONFIG.CMDS.STICKER, CONFIG.CMDS.STICKER_FULL, CONFIG.CMDS.TTP],
+    midia: [CONFIG.CMDS.MENU_MIDIA, CONFIG.CMDS.STICKER, CONFIG.CMDS.STICKER_FULL, CONFIG.CMDS.TTP, CONFIG.CMDS.VV, CONFIG.CMDS.WW],
+    diversao: [CONFIG.CMDS.MENU_DIVERSAO, CONFIG.CMDS.GAY, CONFIG.CMDS.FEIO, CONFIG.CMDS.PICA, CONFIG.CMDS.BOMDIA, CONFIG.CMDS.MOEDA, CONFIG.CMDS.CASAL, CONFIG.CMDS.SORTEIO, CONFIG.CMDS.XINGAR, CONFIG.CMDS.MEME, CONFIG.CMDS.CONSELHO, CONFIG.CMDS.CHANCE, CONFIG.CMDS.TOP5],
+    downloads: [CONFIG.CMDS.MENU_DOWNLOADS, CONFIG.CMDS.VIDEO, CONFIG.CMDS.TIKTOK, CONFIG.CMDS.INSTA, CONFIG.CMDS.FACE, CONFIG.CMDS.TWITTER],
+    musica: [CONFIG.CMDS.MENU_MUSICA, CONFIG.CMDS.PLAY, CONFIG.CMDS.AUDIO],
+    admin: [CONFIG.CMDS.MENU_ADMIN, CONFIG.CMDS.ADD, CONFIG.CMDS.BAN, CONFIG.CMDS.PROMOVER, CONFIG.CMDS.REBAIXAR, CONFIG.CMDS.MARCAR, CONFIG.CMDS.ROLETARUSSA],
+    sistema: [CONFIG.CMDS.MENU_SISTEMA, CONFIG.CMDS.MENU, CONFIG.CMDS.STATUS, CONFIG.CMDS.HELP],
+    rpg: [CONFIG.CMDS.MENU_RPG, CONFIG.CMDS.TUTORIAL, CONFIG.CMDS.CRIARPJ, CONFIG.CMDS.PERFIL, CONFIG.CMDS.FICHA, CONFIG.CMDS.RPG_STATUS, CONFIG.CMDS.CACAR, CONFIG.CMDS.BOSS, CONFIG.CMDS.BOSSES, CONFIG.CMDS.MONSTROS, CONFIG.CMDS.SKILL, CONFIG.CMDS.DUELO, CONFIG.CMDS.LOJA, CONFIG.CMDS.COMPRAR, CONFIG.CMDS.VENDER, CONFIG.CMDS.EQUIPAR, CONFIG.CMDS.INVENTARIO, CONFIG.CMDS.USAR, CONFIG.CMDS.CURAR, CONFIG.CMDS.DAILY, CONFIG.CMDS.GOLD, CONFIG.CMDS.RANKING, CONFIG.CMDS.RANKING_ELO, CONFIG.CMDS.RANKING_BOSS, CONFIG.CMDS.ROUBAR, CONFIG.CMDS.QUESTS, CONFIG.CMDS.COMPLETARQUEST, CONFIG.CMDS.RANKING_JOGADOR, CONFIG.CMDS.STATS, CONFIG.CMDS.UPGRADE]
+};
+const ALL_COMMANDS = new Set(Object.values(CONFIG.CMDS));
+const USER_COMMANDS = [...ALL_COMMANDS].filter(command => !CHAT_ACCESS_COMMANDS.has(command));
+
+function resolveAccessCommands(input) {
+    const tokens = input
+        .toLowerCase()
+        .split(/[,\s]+/)
+        .map(token => token.trim())
+        .filter(Boolean);
+    const commands = new Set();
+    const unknown = [];
+
+    for (const token of tokens) {
+        if (COMMAND_GROUPS[token]) {
+            if (COMMAND_GROUPS[token].includes('*')) return { all: true, commands: [], unknown: [] };
+            COMMAND_GROUPS[token].forEach(command => commands.add(command));
+        } else if (ALL_COMMANDS.has(token)) {
+            commands.add(token);
+        } else {
+            unknown.push(token);
+        }
+    }
+
+    return { all: false, commands: [...commands], unknown };
+}
+
+function formatChatAccess(access) {
+    if (!access) return 'Bloqueado';
+    if (access.mode === 'all') return 'Todos os comandos';
+    return access.commands?.length ? access.commands.join(', ') : 'Nenhum comando';
+}
 
 // Helper para timeout em promises
 const withTimeout = (promise, ms) => {
@@ -124,8 +171,8 @@ const startBot = async () => {
                     const donoNum = CONFIG.DONO_BOT.split('@')[0];
                     const isOwner = senderNum === donoNum;
 
-                    if (!isChatAllowed(jid) && !CHAT_ACCESS_COMMANDS.has(command)) {
-                        console.log(`[BLOQUEADO] Chat nao autorizado: ${jid}`);
+                    if (!CHAT_ACCESS_COMMANDS.has(command) && (!isChatAllowed(jid) || !isCommandAllowed(jid, command))) {
+                        console.log(`[BLOQUEADO] Comando ${command} nao autorizado no chat ${jid}`);
                         return;
                     }
 
@@ -149,9 +196,60 @@ const startBot = async () => {
                             if (!isOwner && !(isGroup && isAdmin)) {
                                 return reply('Apenas o dono do bot ou admin do grupo pode ativar este chat.');
                             }
-                            allowChat(jid);
-                            await react('✅');
-                            await reply(`✅ Bot ativado neste chat.\n\nID: ${jid}`);
+                            {
+                                const resolved = resolveAccessCommands(cmdArgs || 'todos');
+                                if (resolved.unknown.length) {
+                                    return reply(`Não reconheci: ${resolved.unknown.join(', ')}\n\nEx: *!ativarbot figurinhas* ou *!ativarbot todos*`);
+                                }
+
+                                const access = allowChat(jid, resolved.all ? null : resolved.commands);
+                                await react('✅');
+                                await reply(`✅ Bot ativado neste chat.\n\nPermissão: ${formatChatAccess(access)}\nID: ${jid}`);
+                            }
+                            break;
+                        case CONFIG.CMDS.LIBERAR_CMD:
+                            if (!isOwner && !(isGroup && isAdmin)) {
+                                return reply('Apenas o dono do bot ou admin do grupo pode liberar comandos.');
+                            }
+                            if (!cmdArgs.trim()) {
+                                return reply('Uso: *!liberarcmd figurinhas* ou *!liberarcmd fig meme play*');
+                            }
+                            {
+                                const resolved = resolveAccessCommands(cmdArgs);
+                                if (resolved.unknown.length) {
+                                    return reply(`Não reconheci: ${resolved.unknown.join(', ')}`);
+                                }
+
+                                const access = resolved.all ? allowChat(jid) : addAllowedCommands(jid, resolved.commands);
+                                await react('✅');
+                                await reply(`✅ Permissões atualizadas.\n\nAgora: ${formatChatAccess(access)}`);
+                            }
+                            break;
+                        case CONFIG.CMDS.BLOQUEAR_CMD:
+                            if (!isOwner && !(isGroup && isAdmin)) {
+                                return reply('Apenas o dono do bot ou admin do grupo pode bloquear comandos.');
+                            }
+                            if (!cmdArgs.trim()) {
+                                return reply('Uso: *!bloquearcmd downloads* ou *!bloquearcmd meme play*');
+                            }
+                            {
+                                const resolved = resolveAccessCommands(cmdArgs);
+                                if (resolved.unknown.length) {
+                                    return reply(`Não reconheci: ${resolved.unknown.join(', ')}`);
+                                }
+
+                                let access;
+                                if (resolved.all) {
+                                    access = allowChat(jid, []);
+                                } else if (getChatAccess(jid)?.mode === 'all') {
+                                    const remaining = USER_COMMANDS.filter(command => !resolved.commands.includes(command));
+                                    access = allowChat(jid, remaining);
+                                } else {
+                                    access = removeAllowedCommands(jid, resolved.commands);
+                                }
+                                await react('🔒');
+                                await reply(`🔒 Permissões atualizadas.\n\nAgora: ${formatChatAccess(access)}`);
+                            }
                             break;
                         case CONFIG.CMDS.DESATIVAR_BOT:
                             if (!isOwner && !(isGroup && isAdmin)) {
@@ -166,7 +264,7 @@ const startBot = async () => {
                             {
                                 const chats = listAllowedChats();
                                 const lista = chats.length
-                                    ? chats.map((chat, i) => `${i + 1}. ${chat}`).join('\n')
+                                    ? chats.map((chat, i) => `${i + 1}. ${chat.jid}\n   ${formatChatAccess(chat)}`).join('\n')
                                     : 'Nenhum chat liberado.';
                                 await react('📜');
                                 await reply(`📜 *CHATS LIBERADOS*\n\n${lista}`);
@@ -177,7 +275,7 @@ const startBot = async () => {
                                 return reply('Apenas o dono do bot ou admin do grupo pode ver o ID deste chat.');
                             }
                             await react('🆔');
-                            await reply(`🆔 *ID deste chat:*\n${jid}`);
+                            await reply(`🆔 *ID deste chat:*\n${jid}\n\nPermissão: ${formatChatAccess(getChatAccess(jid))}`);
                             break;
 
                         // 📚 SUBMENUS
