@@ -1,6 +1,6 @@
 module.exports = {
     apps: [{
-        name: 'bot-lima',
+        name: 'groot-bot',
         script: 'index.js',
         cwd: './',
         instances: 1,

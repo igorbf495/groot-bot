@@ -118,9 +118,9 @@ export const CONFIG = {
         STATS: 'stats',
         UPGRADE: 'upar'
     },
-    PACK: 'devlima',
-    AUTHOR: 'bot-lima',
-    TEMP_DIR: path.join(os.tmpdir(), 'lima-bot-free')
+    PACK: 'groot',
+    AUTHOR: 'groot-bot',
+    TEMP_DIR: path.join(os.tmpdir(), 'groot-bot-free')
 };
 
 export default CONFIG;

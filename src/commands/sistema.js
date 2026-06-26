@@ -46,7 +46,7 @@ export async function handleMenu(sock, msg, jid, sender, reply, react) {
 
     const menu = `
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃    ✨ *LIMA BOT v13.0* ✨   
+┃    ✨ *GROOT BOT v13.0* ✨
 ┃━━━━━━━━━━━━━━━━━━━━━━━━━┃
 ┃ ${greeting}, @${userName}!
 ┃ 🕐 ${hora}

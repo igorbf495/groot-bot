@@ -110,7 +110,7 @@ const startBot = async () => {
             keepAliveIntervalMs: 30000, // Keep-alive para evitar queda
             defaultQueryTimeoutMs: 60000, // Timeout maior para queries
             retryRequestDelayMs: 250, // Retry rapido
-            browser: ['LimaBot', 'Chrome', '13.0.0'], // Mudar user agent para Chrome
+            browser: ['GrootBot', 'Chrome', '13.0.0'], // Mudar user agent para Chrome
             getMessage: async (key) => { return { conversation: 'hello' } } // Fallback para mensagens antigas
         });
 
@@ -124,7 +124,7 @@ const startBot = async () => {
             const { connection, lastDisconnect, qr } = update;
             if (qr) {
                 console.clear();
-                console.log('✨ LIMA BOT - V13.0 MODULAR ✨');
+                console.log('✨ GROOT BOT - V13.0 MODULAR ✨');
                 qrcode.generate(qr, { small: true });
             }
             if (connection === 'close') {

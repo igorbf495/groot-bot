@@ -1,5 +1,5 @@
 {
-  "name": "bot-lima-beta",
+  "name": "groot-bot",
   "version": "2.0.0",
   "description": "Bot Baileys Latest Beta - Discord/WhatsApp Bot",
   "main": "index.js",
@@ -9,7 +9,7 @@
     "dev": "NODE_ENV=development node index.js"
   },
   "keywords": ["baileys", "whatsapp", "bot", "discord"],
-  "author": "DevLima",
+  "author": "Igor",
   "license": "MIT",
   "dependencies": {
     "@distube/ytdl-core": "^4.16.12",
