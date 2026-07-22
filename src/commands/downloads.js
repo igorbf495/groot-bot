@@ -9,7 +9,6 @@ const { instagramGetUrl } = instagramFn;
 import { CONFIG } from '../config.js';
 import { getRandomFile, safeDelete } from '../utils.js';
 import { logger } from '../logger.js';
-import ytdl from '@distube/ytdl-core';
 
 const execFilePromise = promisify(execFile);
 
@@ -41,7 +40,7 @@ async function downloadVideo(sock, msg, jid, cmdArgs, reply, react, platform) {
     }
 
     if (!cmdArgs) {
-        return reply(`╭──────────────╮\n│ ⚠️ *COMO USAR*    │\n├──────────────┤\n│ /${platform} <link>     │\n╰──────────────╯`);
+        return reply(`╭──────────────╮\n│ ⚠️ *COMO USAR*    │\n├──────────────┤\n│ ${CONFIG.PREFIX}${platform} <link> │\n╰──────────────╯`);
     }
 
     // Validação básica de link (exceto YouTube que aceita busca)
@@ -66,7 +65,10 @@ async function downloadVideo(sock, msg, jid, cmdArgs, reply, react, platform) {
             await downloadFromInstagram(cmdArgs, outputPath);
             videoTitle = 'Instagram Video';
         } else if (platform === 'video') {
-            videoTitle = await downloadFromYouTube(cmdArgs, outputPath);
+            videoTitle = await downloadWithYTDLP(cmdArgs, outputPath, platform, {
+                allowSearch: true,
+                maxSizeMB: config.maxSize
+            });
         } else {
             // YouTube-DLP para Twitter, Facebook e outros
             videoTitle = await downloadWithYTDLP(cmdArgs, outputPath, platform);
@@ -152,70 +154,23 @@ async function downloadFromInstagram(link, outputPath) {
 }
 
 /**
- * Download do YouTube usando Cobalt API + play-dl
- */
-async function downloadFromYouTube(searchOrUrl, outputPath) {
-    let videoUrl = searchOrUrl;
-    let videoTitle = 'Vídeo do YouTube';
-
-    // Se não for URL, buscar no YouTube
-    if (!searchOrUrl.includes('http')) {
-        logger.debug('[YOUTUBE]', `Procurando por: ${searchOrUrl}`);
-        const play = await import('play-dl');
-        
-        const searchResults = await play.search(searchOrUrl, { limit: 1, type: 'video' });
-        
-        if (!searchResults?.[0]) {
-            throw new Error('YouTube: Nenhum vídeo encontrado na busca');
-        }
-        
-        videoUrl = searchResults[0].url;
-        videoTitle = searchResults[0].title || 'Vídeo';
-        logger.debug('[YOUTUBE]', `Encontrado: ${videoTitle}`);
-    }
-
-    logger.debug('[YOUTUBE]', 'Usando ytdl-core (mp4 até 720p)');
-
-    const info = await ytdl.getInfo(videoUrl);
-    const formatsMp4 = info.formats.filter(f => f.hasAudio && f.hasVideo && f.container === 'mp4');
-    const sorted = formatsMp4
-        .filter(f => !f.height || f.height <= 720)
-        .sort((a, b) => (b.height || 0) - (a.height || 0));
-    const format = sorted[0] || ytdl.chooseFormat(info.formats, { quality: 'highest', filter: 'audioandvideo' });
-    if (!format) throw new Error('YouTube: nenhum formato de vídeo com áudio encontrado');
-
-    const contentLength = parseInt(format.contentLength || '0', 10);
-    const maxBytes = (PLATFORM_CONFIG.video.maxSize || 200) * 1024 * 1024;
-    if (contentLength && contentLength > maxBytes) {
-        throw new Error(`YouTube: vídeo excede ${PLATFORM_CONFIG.video.maxSize}MB (${(contentLength/1024/1024).toFixed(1)}MB)`);
-    }
-
-    const writer = fs.createWriteStream(outputPath);
-    const stream = ytdl(videoUrl, { format, quality: format.itag, requestOptions: { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'en-US,en;q=0.9' } } });
-    stream.pipe(writer);
-
-    await new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-        stream.on('error', reject);
-    });
-
-    return videoTitle;
-}
-
-/**
  * Download usando yt-dlp (Twitter, Facebook, etc)
  */
-async function downloadWithYTDLP(url, outputPath, platform) {
+async function downloadWithYTDLP(urlOrSearch, outputPath, platform, options = {}) {
     const ffmpegPath = CONFIG.FFMPEG_DIR;
     const cookiesPath = path.join(process.cwd(), 'cookies.txt');
     const hasCookies = fs.existsSync(cookiesPath);
+    const allowSearch = !!options.allowSearch;
+    const maxSizeMB = options.maxSizeMB || 200;
+    const source = allowSearch && !urlOrSearch.includes('http')
+        ? `ytsearch1:${urlOrSearch}`
+        : urlOrSearch;
 
     let videoTitle = `${platform} Video`;
 
     // Tentar obter título
     try {
-        const titleArgs = [url, '--get-title', '--no-warnings', '--no-playlist'];
+        const titleArgs = [source, '--get-title', '--no-warnings', '--no-playlist'];
         const { stdout } = await execFilePromise(CONFIG.YTDLP_PATH, titleArgs, { timeout: 15000 });
         videoTitle = stdout.trim() || videoTitle;
     } catch (e) {
@@ -223,13 +178,12 @@ async function downloadWithYTDLP(url, outputPath, platform) {
     }
 
     const baseArgs = [
-        url,
+        source,
         '-f', 'bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/mp4',
         '--merge-output-format', 'mp4',
         '-o', outputPath,
         '--no-playlist',
-        '--max-filesize', '200M',
-        '--ffmpeg-location', ffmpegPath,
+        '--max-filesize', `${maxSizeMB}M`,
         '--no-warnings',
         '--quiet',
         '--geo-bypass',
@@ -239,36 +193,40 @@ async function downloadWithYTDLP(url, outputPath, platform) {
         '--add-header', 'Accept-Language: en-US,en;q=0.9'
     ];
 
+    if (ffmpegPath) {
+        baseArgs.push('--ffmpeg-location', ffmpegPath);
+    }
+
     if (hasCookies) {
         baseArgs.push('--cookies', cookiesPath);
     }
 
-    const runYTDLP = async (extraArgs = [], tag = 'primario') => {
-        const args = [...baseArgs, ...extraArgs];
+    const runYTDLP = async (args, tag = 'primario') => {
         logger.debug('[YT-DLP]', `Iniciando download (${tag}) para ${platform}`);
         await execFilePromise(CONFIG.YTDLP_PATH, args, { timeout: 180000 });
     };
 
     try {
-        await runYTDLP();
+        await runYTDLP(baseArgs);
     } catch (err) {
         const msg = err?.stderr || err?.message || '';
         const is403 = msg.includes('403');
         logger.warn('[YT-DLP]', `Falha primária (${msg.trim().slice(0,200)}). Tentando fallback.`);
 
         // Fallback: força IPv4, remove cookies e relaxa formato
-        const argsFallback = hasCookies
-            ? baseArgs.filter(a => a !== '--cookies' && a !== cookiesPath)
-            : baseArgs;
+        const fallbackArgs = baseArgs.filter(a => a !== '--cookies' && a !== cookiesPath);
+        const formatIdx = fallbackArgs.indexOf('-f');
+        if (formatIdx !== -1 && fallbackArgs[formatIdx + 1]) {
+            fallbackArgs[formatIdx + 1] = 'bestvideo[ext=mp4][height<=720]+bestaudio/best';
+        }
 
-        const extra = [
+        fallbackArgs.push(
             '--force-ipv4',
-            '-f', 'bestvideo[ext=mp4][height<=720]+bestaudio/best',
             '--no-check-certificates'
-        ];
+        );
 
         try {
-            await runYTDLP([...argsFallback, ...extra], 'fallback');
+            await runYTDLP(fallbackArgs, 'fallback');
         } catch (err2) {
             // Propagar erro original se fallback também falhar
             throw is403 ? new Error('YT-DLP: HTTP 403 mesmo após fallback') : err2;

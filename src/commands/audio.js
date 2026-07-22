@@ -13,7 +13,7 @@ const execFilePromise = promisify(execFile);
 
 export async function handleAudio(sock, msg, jid, cmdArgs, reply, react) {
     if (!cmdArgs) {
-        return reply('╭──────────────╮\n│ ⚠️ *COMO USAR*    │\n├──────────────┤\n│ /audio ratinho    │\n│ /audio gemidao    │\n╰──────────────╯');
+        return reply(`╭──────────────╮\n│ ⚠️ *COMO USAR*    │\n├──────────────┤\n│ ${CONFIG.PREFIX}audio ratinho │\n│ ${CONFIG.PREFIX}audio gemidao │\n╰──────────────╯`);
     }
 
     await react('🔊');
@@ -25,8 +25,8 @@ export async function handleAudio(sock, msg, jid, cmdArgs, reply, react) {
         const { data } = await axios.get(url);
         const $ = cheerio.load(data);
 
-        // Encontrar o primeiro botão de play
-        // MyInstants usa botões com onclick="play('url')"
+        // Encontrar o primeiro botão de play.
+        // O HTML do MyInstants varia, então usamos mais de um seletor/regex.
         let mp3Url = null;
         let title = '';
 
@@ -34,22 +34,37 @@ export async function handleAudio(sock, msg, jid, cmdArgs, reply, react) {
         $('.instant').each((i, el) => {
             if (mp3Url) return; // Já achou
 
-            const btn = $(el).find('.small-button');
+            const btn = $(el).find('.small-button, .instant-page-button, button, a');
             const link = $(el).find('.instant-link');
 
             if (btn.length) {
                 const onclick = btn.attr('onclick');
                 // Formato: play('/media/sounds/nome.mp3', 'loader', 'id')
-                // Regex para pegar apenas a URL dentro das primeiras aspas
-                const match = onclick?.match(/play\('([^']+)'/);
+                const match = onclick?.match(/play\(['\"]([^'\"]+)['\"]/);
 
                 if (match && match[1]) {
                     console.log('[DEBUG] Audio encontrado:', match[1]);
                     mp3Url = match[1];
                     title = link.text() || cmdArgs;
+                    return;
+                }
+
+                const href = btn.attr('href');
+                if (href && href.includes('/media/sounds/')) {
+                    mp3Url = href;
+                    title = link.text() || cmdArgs;
                 }
             }
         });
+
+        // Fallback geral para layouts diferentes
+        if (!mp3Url) {
+            const fallback = $('a[href*="/media/sounds/"]').first();
+            if (fallback.length) {
+                mp3Url = fallback.attr('href');
+                title = fallback.text()?.trim() || cmdArgs;
+            }
+        }
 
         if (!mp3Url) {
             return reply('╭──────────────╮\n│ ❌ *ERRO*         │\n├──────────────┤\n│ Som não           │\n│ encontrado!       │\n╰──────────────╯');
@@ -134,7 +149,7 @@ export function menuAudio(reply) {
 │
 │ 📢 *${CONFIG.PREFIX}audio* <nome>
 │   └ Busca sons de meme
-│   └ ex: /audio ratinho
+│   └ ex: !audio ratinho
 │
 ╰───────────────────────╯`;
     return reply(menu);

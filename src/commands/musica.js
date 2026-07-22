@@ -12,7 +12,7 @@ const execFilePromise = util.promisify(execFile);
 
 export async function handlePlay(sock, msg, jid, cmdArgs, reply, react) {
     if (!cmdArgs) {
-        return reply('╭──────────────╮\n│ ⚠️ *COMO USAR*    │\n├──────────────┤\n│ /play nome música │\n│ ou                │\n│ /play link youtube│\n╰──────────────╯');
+        return reply('╭──────────────╮\n│ ⚠️ *COMO USAR*    │\n├──────────────┤\n│ !play nome música │\n│ ou                │\n│ !play link youtube│\n╰──────────────╯');
     }
 
     // Verificar se yt-dlp existe (no Linux verifica se está no PATH)
@@ -51,10 +51,13 @@ export async function handlePlay(sock, msg, jid, cmdArgs, reply, react) {
             '-o', outputPath,               // Arquivo de saída
             '--no-playlist',                // Não baixar playlist
             '--max-filesize', '50M',        // Limite maior
-            '--ffmpeg-location', ffmpegPath, // Localização do ffmpeg
             '--no-warnings',
             '--quiet'
         ];
+
+        if (ffmpegPath) {
+            args.push('--ffmpeg-location', ffmpegPath);
+        }
 
         // Se tiver cookies.txt, usa
         if (fs.existsSync(cookiesPath)) {
@@ -92,13 +95,16 @@ export async function handlePlay(sock, msg, jid, cmdArgs, reply, react) {
                     '-o', outputPath,
                     '--no-playlist',
                     '--max-filesize', '50M',
-                    '--ffmpeg-location', ffmpegPath,
                     '--no-warnings',
                     '--quiet',
                     // Adicionar truques de bypass
                     '--extractor-args', 'youtube:player_client=web_creator,mweb',
                     '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                 ];
+
+                if (ffmpegPath) {
+                    fallbackArgs.push('--ffmpeg-location', ffmpegPath);
+                }
 
                 await execFilePromise(CONFIG.YTDLP_PATH, fallbackArgs, { timeout: 120000 });
             } else {
@@ -187,6 +193,9 @@ export function menuMusica(reply) {
 │
 │ 🎧 *${CONFIG.PREFIX}play* <música>
 │   └ Baixa do YouTube
+│
+│ 🎶 *${CONFIG.PREFIX}musica* <música>
+│   └ Atalho para !play
 │
 │ 🔊 *${CONFIG.PREFIX}audio* <nome>
 │   └ Efeitos do MyInstants

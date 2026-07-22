@@ -300,7 +300,11 @@ const startBot = async () => {
                             break;
                         case CONFIG.CMDS.MENU_MUSICA:
                             await react('🎵');
-                            await menuMusica(reply);
+                            if (cmdArgs && cmdArgs.trim()) {
+                                await handlePlay(sock, msg, jid, cmdArgs, reply, react);
+                            } else {
+                                await menuMusica(reply);
+                            }
                             break;
 
                         // ⚙️ SISTEMA

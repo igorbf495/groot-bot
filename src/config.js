@@ -4,6 +4,7 @@ import os from 'os';
 // ==================== DETECÇÃO DO SISTEMA ====================
 const IS_WINDOWS = process.platform === 'win32';
 const BIN_EXT = IS_WINDOWS ? '.exe' : '';
+const FFMPEG_DIR_FALLBACK = process.env.FFMPEG_DIR || (process.platform === 'darwin' ? '/opt/homebrew/bin' : '/usr/bin');
 
 // ==================== CONFIGURAÇÕES ====================
 export const CONFIG = {
@@ -19,7 +20,7 @@ export const CONFIG = {
         : 'ffmpeg',  // No Linux usa do PATH do sistema
     FFMPEG_DIR: IS_WINDOWS 
         ? path.join(process.cwd(), 'bin')
-        : '/usr/bin',
+        : FFMPEG_DIR_FALLBACK,
     CMDS: {
         // 🎨 Mídia
         STICKER: 'fig',
