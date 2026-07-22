@@ -1,5 +1,5 @@
 import { CONFIG } from '../config.js';
-import { createMovieLink, findMovie } from '../movieServer.js';
+import { createMovieLink, createProviderLink, findMovie } from '../movieServer.js';
 import { cancelMovieImport, getMovieImportStatus, startMovieImport, startTorrentImport } from '../movieImporter.js';
 
 function titleFromFile(file) {
@@ -30,6 +30,28 @@ export async function handleFilme(cmdArgs, reply, react) {
     const link = createMovieLink(movie);
     await react('✅');
     return reply(`🎬 *${title}*\n\n▶️ Assistir:\n${link}\n\n⏳ Link válido por ${CONFIG.MOVIE_LINK_HOURS} horas.`);
+}
+
+export async function handleAssistir(cmdArgs, reply, react) {
+    const args = (cmdArgs || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const type = args[0];
+    const id = Number(args[1]);
+
+    if (type === 'filme' && Number.isSafeInteger(id) && id > 0 && args.length === 2) {
+        const link = createProviderLink({ type, id });
+        await react('🎬');
+        return reply(`🎬 *FILME ${id}*\n\n▶️ Assistir:\n${link}\n\n⏳ Link válido por ${CONFIG.MOVIE_LINK_HOURS} horas.`);
+    }
+
+    const season = Number(args[2]);
+    const episode = Number(args[3]);
+    if (type === 'serie' && [id, season, episode].every(value => Number.isSafeInteger(value) && value > 0) && args.length === 4) {
+        const link = createProviderLink({ type, id, season, episode });
+        await react('📺');
+        return reply(`📺 *SÉRIE ${id} · T${season} E${episode}*\n\n▶️ Assistir:\n${link}\n\n⏳ Link válido por ${CONFIG.MOVIE_LINK_HOURS} horas.`);
+    }
+
+    return reply(`Uso:\n*${CONFIG.PREFIX}assistir filme ID_TMDB*\n*${CONFIG.PREFIX}assistir serie ID_TMDB TEMPORADA EPISÓDIO*`);
 }
 
 export async function handleAddFilme(cmdArgs, isOwner, reply, react) {

@@ -203,6 +203,10 @@ export function menuMusica(reply) {
 │ 🎬 *${CONFIG.PREFIX}filme* [nome]
 │   └ Lista ou abre um filme da VPS
 │
+│ ▶️ *${CONFIG.PREFIX}assistir filme* ID
+│ ▶️ *${CONFIG.PREFIX}assistir serie* ID TEMP EP
+│   └ Player do provedor licenciado
+│
 │ ⬇️ *${CONFIG.PREFIX}addfilme* URL | Nome
 │ 📊 *${CONFIG.PREFIX}statusfilme*
 │ 🛑 *${CONFIG.PREFIX}cancelarfilme*

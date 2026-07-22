@@ -68,6 +68,15 @@ export function createMovieLink(relativePath) {
     return `${CONFIG.MOVIE_PUBLIC_URL}/assistir/${token}`;
 }
 
+export function createProviderLink({ type, id, season, episode }) {
+    const payload = Buffer.from(JSON.stringify({
+        provider: 'pomfy', type, id, season, episode,
+        exp: Date.now() + CONFIG.MOVIE_LINK_HOURS * 60 * 60 * 1000
+    })).toString('base64url');
+    const token = `${payload}.${sign(payload)}`;
+    return `${CONFIG.MOVIE_PUBLIC_URL}/online/${token}`;
+}
+
 function verifyToken(token) {
     const [payload, signature] = token.split('.');
     if (!payload || !signature) throw new Error('Link inválido');
@@ -79,17 +88,37 @@ function verifyToken(token) {
     }
 
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
-    if (!data.file || !data.exp || Date.now() > data.exp) throw new Error('Link expirado');
+    if (!data.exp || Date.now() > data.exp) throw new Error('Link expirado');
     return data;
 }
 
 async function resolveMovie(token) {
     const data = verifyToken(token);
+    if (!data.file) throw new Error('Link inválido');
     const root = await fsp.realpath(CONFIG.MOVIES_DIR);
     const target = await fsp.realpath(path.resolve(root, data.file));
     if (target !== root && !target.startsWith(`${root}${path.sep}`)) throw new Error('Arquivo inválido');
     if (!VIDEO_EXTENSIONS.has(path.extname(target).toLowerCase())) throw new Error('Formato inválido');
     return { target, title: movieTitle(data.file) };
+}
+
+function resolveProvider(token) {
+    const data = verifyToken(token);
+    if (data.provider !== 'pomfy' || !['filme', 'serie'].includes(data.type) || !Number.isSafeInteger(data.id) || data.id <= 0) {
+        throw new Error('Link inválido');
+    }
+    if (data.type === 'serie' && (
+        !Number.isSafeInteger(data.season) || data.season <= 0 ||
+        !Number.isSafeInteger(data.episode) || data.episode <= 0
+    )) throw new Error('Episódio inválido');
+
+    const suffix = data.type === 'serie' ? `/${data.season}/${data.episode}` : '';
+    return {
+        embedUrl: `https://api.pomfy.stream/${data.type}/${data.id}${suffix}`,
+        title: data.type === 'filme'
+            ? `Filme ${data.id}`
+            : `Série ${data.id} · T${data.season} E${data.episode}`
+    };
 }
 
 function escapeHtml(value) {
@@ -107,6 +136,23 @@ function sendPlayer(res, token, title) {
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#07110d;color:#fff;font-family:system-ui,-apple-system,sans-serif;display:grid;place-items:center;padding:20px}.box{width:min(1100px,100%)}h1{font-size:clamp(20px,4vw,32px);margin:0 0 16px;color:#69f0ae}video{width:100%;max-height:78vh;background:#000;border-radius:14px;box-shadow:0 18px 50px #0008}.hint{color:#aab8b1;font-size:14px;margin-top:12px}</style></head>
 <body><main class="box"><h1>🎬 ${safeTitle}</h1><video controls playsinline preload="metadata" src="/stream/${safeToken}"></video><p class="hint">Groot Filmes · Link temporário</p></main></body></html>`;
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(html), 'Cache-Control': 'no-store' });
+    res.end(html);
+}
+
+function sendProviderPlayer(res, embedUrl, title) {
+    const safeTitle = escapeHtml(title);
+    const safeUrl = escapeHtml(embedUrl);
+    const html = `<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer"><title>${safeTitle} | Groot Filmes</title><style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#07110d;color:#fff;font-family:system-ui,-apple-system,sans-serif;display:grid;place-items:center;padding:14px}.box{width:min(1200px,100%)}h1{font-size:clamp(18px,4vw,28px);margin:0 0 12px;color:#69f0ae}.frame{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;box-shadow:0 18px 50px #0008}iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.hint{color:#aab8b1;font-size:13px;margin-top:10px}</style></head>
+<body><main class="box"><h1>🎬 ${safeTitle}</h1><div class="frame"><iframe src="${safeUrl}" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allowfullscreen></iframe></div><p class="hint">Groot Filmes · Conteúdo fornecido por provedor licenciado · Link temporário</p></main></body></html>`;
+    res.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Length': Buffer.byteLength(html),
+        'Cache-Control': 'no-store',
+        'Content-Security-Policy': "default-src 'none'; frame-src https://api.pomfy.stream; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"
+    });
     res.end(html);
 }
 
@@ -149,6 +195,7 @@ async function requestHandler(req, res) {
         const url = new URL(req.url, 'http://localhost');
         const playerMatch = /^\/assistir\/([^/]+)$/.exec(url.pathname);
         const streamMatch = /^\/stream\/([^/]+)$/.exec(url.pathname);
+        const onlineMatch = /^\/online\/([^/]+)$/.exec(url.pathname);
 
         if (playerMatch) {
             const token = decodeURIComponent(playerMatch[1]);
@@ -158,6 +205,10 @@ async function requestHandler(req, res) {
         if (streamMatch && (req.method === 'GET' || req.method === 'HEAD')) {
             const { target } = await resolveMovie(decodeURIComponent(streamMatch[1]));
             return streamMovie(req, res, target);
+        }
+        if (onlineMatch) {
+            const { embedUrl, title } = resolveProvider(decodeURIComponent(onlineMatch[1]));
+            return sendProviderPlayer(res, embedUrl, title);
         }
         if (url.pathname === '/health') {
             res.writeHead(200, { 'Content-Type': 'application/json' });

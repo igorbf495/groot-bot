@@ -114,7 +114,7 @@ Variáveis opcionais do serviço:
 
 ```bash
 MOVIES_DIR=/caminho/para/filmes
-MOVIE_PUBLIC_URL=https://filmes.grootlab.xyz
+MOVIE_PUBLIC_URL=https://grootlab.xyz
 MOVIE_SERVER_HOST=127.0.0.1
 MOVIE_SERVER_PORT=3000
 MOVIE_LINK_HOURS=6
@@ -122,12 +122,26 @@ MOVIE_MAX_GB=15
 MOVIE_LINK_SECRET=troque-por-um-segredo-longo-e-aleatorio
 ```
 
-Crie um registro DNS `A` para `filmes.grootlab.xyz` apontando para `45.164.135.145`. Exemplo de proxy reverso Nginx:
+O registro DNS `A` de `grootlab.xyz` deve apontar para `45.164.135.145`. Instale o proxy e o Certbot:
+
+```bash
+sudo apt update
+sudo apt install -y nginx certbot python3-certbot-nginx
+sudo cp deploy/nginx-grootlab.conf /etc/nginx/sites-available/grootlab.xyz
+sudo ln -s /etc/nginx/sites-available/grootlab.xyz /etc/nginx/sites-enabled/grootlab.xyz
+sudo nginx -t
+sudo systemctl enable --now nginx
+sudo systemctl reload nginx
+sudo certbot --nginx -d grootlab.xyz
+sudo certbot renew --dry-run
+```
+
+Configuração usada pelo Nginx:
 
 ```nginx
 server {
     listen 80;
-    server_name filmes.grootlab.xyz;
+    server_name grootlab.xyz;
 
     location / {
         proxy_pass http://127.0.0.1:3000;
@@ -140,7 +154,7 @@ server {
 }
 ```
 
-Depois, ative HTTPS no domínio e reinicie o processo do bot com as variáveis atualizadas. No WhatsApp:
+As portas TCP 80 e 443 precisam estar liberadas no firewall da VPS e no painel do provedor. Depois, reinicie o processo do bot com as variáveis atualizadas. No WhatsApp:
 
 ```text
 !filme
@@ -151,6 +165,8 @@ Depois, ative HTTPS no domínio e reinicie o processo do bot com as variáveis a
 !addtorrent MAGNET | Nome do filme
 !statustorrent
 !cancelartorrent
+!assistir filme ID_TMDB
+!assistir serie ID_TMDB TEMPORADA EPISODIO
 ```
 
 Os comandos de importação são exclusivos do dono do bot. Use somente links diretos de arquivos próprios, licenciados ou de domínio público.
