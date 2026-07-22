@@ -2,6 +2,12 @@ import { CONFIG } from '../config.js';
 import { createBar } from '../utils.js';
 import axios from 'axios';
 
+function areSameWhatsAppUser(firstJid, secondJid) {
+    if (!firstJid || !secondJid) return false;
+    const normalize = value => value.split('@')[0].split(':')[0];
+    return normalize(firstJid) === normalize(secondJid);
+}
+
 // ==================== COMANDOS DE DIVERSÃO ====================
 
 export async function handleGayFeio(command, reply) {
@@ -174,20 +180,40 @@ export async function handleSorteio(sock, msg, jid, isGroup, groupMetadata, repl
         return reply('╭──────────────╮\n│ ❌ *ERRO*         │\n├──────────────┤\n│ Use apenas em     │\n│ grupos!           │\n╰──────────────╯');
     }
 
-    const winner = groupMetadata.participants[Math.floor(Math.random() * groupMetadata.participants.length)].id;
+    const participants = Array.isArray(groupMetadata?.participants)
+        ? groupMetadata.participants
+        : [];
+    const botJids = [sock.user?.id, sock.user?.lid].filter(Boolean);
+    const candidates = participants.filter(participant => {
+        const participantJids = [participant.id, participant.phoneNumber, participant.lid].filter(Boolean);
+        if (!participant.id || participantJids.length === 0) return false;
+
+        return !botJids.some(botJid =>
+            participantJids.some(participantJid => areSameWhatsAppUser(botJid, participantJid))
+        );
+    });
+
+    if (candidates.length === 0) {
+        return reply('❌ Não encontrei participantes válidos para o sorteio.');
+    }
+
+    const winner = candidates[Math.floor(Math.random() * candidates.length)];
+    const winnerJid = winner.id;
+    // Em grupos LID, use o telefone apenas para exibir e o ID interno para marcar.
+    const winnerNumber = (winner.phoneNumber || winnerJid).split('@')[0];
     const sorteioMsg = `
 ╭───────────────────────╮
-│   🎰 *SORTEIO* 🎰      
+│   🎰 *SORTEIO* 🎰
 ├───────────────────────┤
 │
 │ 🎊 *PARABÉNS!* 🎊
 │
 │ 🏆 O vencedor é:
-│ 
-│    👤 @${winner.split('@')[0]}
+│
+│    👤 @${winnerNumber}
 │
 ╰───────────────────────╯`;
-    return sock.sendMessage(jid, { text: sorteioMsg, mentions: [winner] }, { quoted: msg });
+    return sock.sendMessage(jid, { text: sorteioMsg, mentions: [winnerJid] }, { quoted: msg });
 }
 
 export async function handleMeme(sock, msg, jid, reply, react) {
