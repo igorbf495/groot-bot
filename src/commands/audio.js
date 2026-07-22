@@ -22,15 +22,37 @@ export async function handleAudio(sock, msg, jid, cmdArgs, reply, react) {
 
     try {
         const query = encodeURIComponent(searchTerm);
-        const url = `https://www.myinstants.com/pt/search/?name=${query}`;
+        const searchUrls = [
+            `https://www.myinstants.com/pt/search/?name=${query}`,
+            `https://www.myinstants.com/search/?name=${query}`
+        ];
 
-        const { data } = await axios.get(url, {
+        let data = '';
+        let searchStatus = 0;
+
+        for (const url of searchUrls) {
+            const response = await axios.get(url, {
             timeout: 15000,
+            validateStatus: (status) => status >= 200 && status < 500,
             headers: {
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
                 'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7'
             }
         });
+
+            data = typeof response.data === 'string' ? response.data : '';
+            searchStatus = response.status;
+
+            // Mesmo quando vem 404, às vezes o HTML já contém os resultados.
+            if (data.includes('/media/sounds/')) {
+                break;
+            }
+        }
+
+        if (!data) {
+            throw new Error('MyInstants sem resposta HTML');
+        }
+
         const $ = cheerio.load(data);
 
         // Encontrar o primeiro botão de play.
@@ -85,6 +107,10 @@ export async function handleAudio(sock, msg, jid, cmdArgs, reply, react) {
 
         if (!mp3Url) {
             return reply('╭──────────────╮\n│ ❌ *ERRO*         │\n├──────────────┤\n│ Som não           │\n│ encontrado!       │\n╰──────────────╯');
+        }
+
+        if (searchStatus === 404) {
+            console.log('[DEBUG] MyInstants retornou 404, mas o parser encontrou resultado no HTML.');
         }
 
         // Se a URL for relativa, adicionar domínio
@@ -168,7 +194,9 @@ export async function handleAudio(sock, msg, jid, cmdArgs, reply, react) {
         await react('✅');
 
     } catch (e) {
-        console.error('Erro audio:', e);
+        const status = e?.response?.status;
+        const msg = status ? `${e.message} (status ${status})` : e.message;
+        console.error('Erro audio:', msg);
         await react('❌');
         await reply('╭──────────────╮\n│ ❌ *ERRO*         │\n├──────────────┤\n│ Falha ao buscar   │\n│ ou processar som  │\n╰──────────────╯');
     }

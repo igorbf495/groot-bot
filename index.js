@@ -160,7 +160,8 @@ const startBot = async () => {
                     const botNumber = sock.user.id.split(':')[0] + '@s.whatsapp.net';
 
                     const args = text.slice(CONFIG.PREFIX.length).trim().split(/\s+/);
-                    command = args.shift().toLowerCase();
+                    const rawCommand = args.shift().toLowerCase();
+                    command = rawCommand.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
                     const cmdArgs = args.join(' ');
                     
                     console.log(`[COMANDO] ${command}`);
