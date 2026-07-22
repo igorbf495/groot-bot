@@ -22,7 +22,7 @@ import { handleBanPromover, handleMarcar, handleRoletaRussa, handleAdd, handleLi
 import { handleStatus, handleMenu, handleHelp, menuSistema } from './src/commands/sistema.js';
 import { handlePlay, menuMusica } from './src/commands/musica.js';
 import { handleAudio } from './src/commands/audio.js';
-import { handleAddFilme, handleAddTorrent, handleAssistir, handleCancelarFilme, handleFilme, handleStatusFilme } from './src/commands/filme.js';
+import { handleAddFilme, handleAddTorrent, handleAssistir, handleBuscarCatalogo, handleCancelarFilme, handleCatalogo, handleFilme, handleStatusFilme } from './src/commands/filme.js';
 import { handleVideo, handleTikTok, handleInsta, handleFace, handleTwitter, menuDownloads } from './src/commands/downloads.js';
 import { startMovieServer } from './src/movieServer.js';
 import { 
@@ -56,7 +56,7 @@ const COMMAND_GROUPS = {
     midia: [CONFIG.CMDS.MENU_MIDIA, CONFIG.CMDS.STICKER, CONFIG.CMDS.STICKER_FULL, CONFIG.CMDS.TTP, CONFIG.CMDS.VV, CONFIG.CMDS.WW],
     diversao: [CONFIG.CMDS.MENU_DIVERSAO, CONFIG.CMDS.GAY, CONFIG.CMDS.FEIO, CONFIG.CMDS.PICA, CONFIG.CMDS.BOMDIA, CONFIG.CMDS.MOEDA, CONFIG.CMDS.CASAL, CONFIG.CMDS.SORTEIO, CONFIG.CMDS.XINGAR, CONFIG.CMDS.MEME, CONFIG.CMDS.CONSELHO, CONFIG.CMDS.CHANCE, CONFIG.CMDS.TOP5],
     downloads: [CONFIG.CMDS.MENU_DOWNLOADS, CONFIG.CMDS.VIDEO, CONFIG.CMDS.TIKTOK, CONFIG.CMDS.INSTA, CONFIG.CMDS.FACE, CONFIG.CMDS.TWITTER],
-    musica: [CONFIG.CMDS.MENU_MUSICA, CONFIG.CMDS.PLAY, CONFIG.CMDS.AUDIO, CONFIG.CMDS.FILME, CONFIG.CMDS.ASSISTIR],
+    musica: [CONFIG.CMDS.MENU_MUSICA, CONFIG.CMDS.PLAY, CONFIG.CMDS.AUDIO, CONFIG.CMDS.FILME, CONFIG.CMDS.ASSISTIR, CONFIG.CMDS.CATALOGO, CONFIG.CMDS.BUSCAR_FILME, CONFIG.CMDS.BUSCAR_SERIE],
     admin: [CONFIG.CMDS.MENU_ADMIN, CONFIG.CMDS.ADD, CONFIG.CMDS.LIGAR, CONFIG.CMDS.BAN, CONFIG.CMDS.PROMOVER, CONFIG.CMDS.REBAIXAR, CONFIG.CMDS.MARCAR, CONFIG.CMDS.ROLETARUSSA],
     sistema: [CONFIG.CMDS.MENU_SISTEMA, CONFIG.CMDS.MENU, CONFIG.CMDS.STATUS, CONFIG.CMDS.HELP],
     rpg: [CONFIG.CMDS.MENU_RPG, CONFIG.CMDS.TUTORIAL, CONFIG.CMDS.CRIARPJ, CONFIG.CMDS.PERFIL, CONFIG.CMDS.FICHA, CONFIG.CMDS.RPG_STATUS, CONFIG.CMDS.CACAR, CONFIG.CMDS.BOSS, CONFIG.CMDS.BOSSES, CONFIG.CMDS.MONSTROS, CONFIG.CMDS.SKILL, CONFIG.CMDS.DUELO, CONFIG.CMDS.LOJA, CONFIG.CMDS.COMPRAR, CONFIG.CMDS.VENDER, CONFIG.CMDS.EQUIPAR, CONFIG.CMDS.INVENTARIO, CONFIG.CMDS.USAR, CONFIG.CMDS.CURAR, CONFIG.CMDS.DAILY, CONFIG.CMDS.GOLD, CONFIG.CMDS.RANKING, CONFIG.CMDS.RANKING_ELO, CONFIG.CMDS.RANKING_BOSS, CONFIG.CMDS.ROUBAR, CONFIG.CMDS.QUESTS, CONFIG.CMDS.COMPLETARQUEST, CONFIG.CMDS.RANKING_JOGADOR, CONFIG.CMDS.STATS, CONFIG.CMDS.UPGRADE]
@@ -360,6 +360,15 @@ const startBot = async () => {
                             break;
                         case CONFIG.CMDS.ASSISTIR:
                             await handleAssistir(cmdArgs, reply, react);
+                            break;
+                        case CONFIG.CMDS.CATALOGO:
+                            await handleCatalogo(cmdArgs, reply, react);
+                            break;
+                        case CONFIG.CMDS.BUSCAR_FILME:
+                            await handleBuscarCatalogo('filmes', cmdArgs, reply, react);
+                            break;
+                        case CONFIG.CMDS.BUSCAR_SERIE:
+                            await handleBuscarCatalogo('series', cmdArgs, reply, react);
                             break;
                         case CONFIG.CMDS.ADD_FILME:
                             await handleAddFilme(cmdArgs, isOwner, reply, react);

@@ -1,6 +1,7 @@
 import { CONFIG } from '../config.js';
 import { createMovieLink, createProviderLink, findMovie } from '../movieServer.js';
 import { cancelMovieImport, getMovieImportStatus, startMovieImport, startTorrentImport } from '../movieImporter.js';
+import { getCatalogPage, searchCatalog } from '../catalogService.js';
 
 function titleFromFile(file) {
     const name = file.split(/[\\/]/).pop();
@@ -52,6 +53,49 @@ export async function handleAssistir(cmdArgs, reply, react) {
     }
 
     return reply(`Uso:\n*${CONFIG.PREFIX}assistir filme ID_TMDB*\n*${CONFIG.PREFIX}assistir serie ID_TMDB TEMPORADA EPISÓDIO*`);
+}
+
+function formatCatalogItem(item, index) {
+    const year = item.date?.slice(0, 4) || 's/ ano';
+    return `${index + 1}. *${item.title}* (${year})\n   ID: ${item.id}`;
+}
+
+export async function handleCatalogo(cmdArgs, reply, react) {
+    const [rawType = 'filmes', rawPage = '1'] = (cmdArgs || '').trim().toLowerCase().split(/\s+/);
+    const type = rawType === 'serie' || rawType === 'series' ? 'series'
+        : rawType === 'filme' || rawType === 'filmes' ? 'filmes' : null;
+    const page = Number(rawPage);
+    if (!type || !Number.isSafeInteger(page) || page < 1) {
+        return reply(`Uso: *${CONFIG.PREFIX}catalogo filmes 1* ou *${CONFIG.PREFIX}catalogo series 1*`);
+    }
+
+    try {
+        await react('📚');
+        const result = await getCatalogPage(type, page);
+        if (!result.items.length) return reply('ℹ️ Esta página não possui títulos.');
+        const label = type === 'filmes' ? 'FILMES' : 'SÉRIES';
+        const list = result.items.map(formatCatalogItem).join('\n\n');
+        return reply(`📚 *CATÁLOGO DE ${label}*\nPágina ${result.page}/${result.totalPages}\n\n${list}\n\n▶️ Use *${CONFIG.PREFIX}assistir ${type === 'filmes' ? 'filme' : 'serie'} ID${type === 'series' ? ' TEMP EP' : ''}*`);
+    } catch (error) {
+        await react('❌');
+        return reply(`❌ Catálogo indisponível: ${error.message}`);
+    }
+}
+
+export async function handleBuscarCatalogo(type, cmdArgs, reply, react) {
+    const query = (cmdArgs || '').trim();
+    if (!query) return reply(`Uso: *${CONFIG.PREFIX}${type === 'filmes' ? 'buscarfilme' : 'buscarserie'} nome*`);
+
+    try {
+        await react('🔎');
+        const items = await searchCatalog(type, query);
+        if (!items.length) return reply(`❌ Não encontrei “${query}” no catálogo disponível.`);
+        const list = items.map(formatCatalogItem).join('\n\n');
+        return reply(`🔎 *RESULTADOS DISPONÍVEIS*\n\n${list}\n\n▶️ Use o ID no comando *${CONFIG.PREFIX}assistir*.`);
+    } catch (error) {
+        await react('❌');
+        return reply(`❌ Busca indisponível: ${error.message}`);
+    }
 }
 
 export async function handleAddFilme(cmdArgs, isOwner, reply, react) {

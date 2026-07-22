@@ -120,6 +120,7 @@ MOVIE_SERVER_PORT=3000
 MOVIE_LINK_HOURS=6
 MOVIE_MAX_GB=15
 MOVIE_LINK_SECRET=troque-por-um-segredo-longo-e-aleatorio
+TMDB_API_TOKEN=seu-api-read-access-token-do-tmdb
 ```
 
 O registro DNS `A` de `grootlab.xyz` deve apontar para `45.164.135.145`. Instale o proxy e o Certbot:
@@ -167,6 +168,10 @@ As portas TCP 80 e 443 precisam estar liberadas no firewall da VPS e no painel d
 !cancelartorrent
 !assistir filme ID_TMDB
 !assistir serie ID_TMDB TEMPORADA EPISODIO
+!catalogo filmes 1
+!catalogo series 1
+!buscarfilme nome
+!buscarserie nome
 ```
 
 Os comandos de importação são exclusivos do dono do bot. Use somente links diretos de arquivos próprios, licenciados ou de domínio público.

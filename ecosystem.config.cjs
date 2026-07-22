@@ -8,7 +8,8 @@ module.exports = {
         watch: false,
         max_memory_restart: '500M',
         env: {
-            NODE_ENV: 'production'
+            NODE_ENV: 'production',
+            TMDB_API_TOKEN: process.env.TMDB_API_TOKEN || ''
         },
         error_file: './logs/error.log',
         out_file: './logs/output.log',

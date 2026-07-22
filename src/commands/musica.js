@@ -207,6 +207,10 @@ export function menuMusica(reply) {
 │ ▶️ *${CONFIG.PREFIX}assistir serie* ID TEMP EP
 │   └ Player do provedor licenciado
 │
+│ 📚 *${CONFIG.PREFIX}catalogo* filmes|series [página]
+│ 🔎 *${CONFIG.PREFIX}buscarfilme* nome
+│ 🔎 *${CONFIG.PREFIX}buscarserie* nome
+│
 │ ⬇️ *${CONFIG.PREFIX}addfilme* URL | Nome
 │ 📊 *${CONFIG.PREFIX}statusfilme*
 │ 🛑 *${CONFIG.PREFIX}cancelarfilme*

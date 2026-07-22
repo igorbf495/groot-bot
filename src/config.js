@@ -74,6 +74,9 @@ export const CONFIG = {
         STATUS_TORRENT: 'statustorrent',
         CANCELAR_TORRENT: 'cancelartorrent',
         ASSISTIR: 'assistir',
+        CATALOGO: 'catalogo',
+        BUSCAR_FILME: 'buscarfilme',
+        BUSCAR_SERIE: 'buscarserie',
 
         // ⬇️ Downloads
         VIDEO: 'video',
@@ -136,7 +139,8 @@ export const CONFIG = {
     MOVIE_SERVER_HOST: process.env.MOVIE_SERVER_HOST || '127.0.0.1',
     MOVIE_SERVER_PORT: Number(process.env.MOVIE_SERVER_PORT || 3000),
     MOVIE_LINK_HOURS: Number(process.env.MOVIE_LINK_HOURS || 6),
-    MOVIE_MAX_GB: Number(process.env.MOVIE_MAX_GB || 15)
+    MOVIE_MAX_GB: Number(process.env.MOVIE_MAX_GB || 15),
+    TMDB_API_TOKEN: process.env.TMDB_API_TOKEN || ''
 };
 
 export default CONFIG;
