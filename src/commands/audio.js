@@ -118,6 +118,12 @@ export async function handleAudio(sock, msg, jid, cmdArgs, reply, react) {
             mp3Url = `https://www.myinstants.com${mp3Url}`;
         }
 
+        // Alguns links falham em um host e funcionam em outro.
+        const mediaCandidates = [
+            mp3Url,
+            mp3Url.replace('https://www.myinstants.com', 'https://myinstants.com')
+        ].filter((value, index, arr) => value && arr.indexOf(value) === index);
+
         await reply(`╭───────────────────────╮
 │ 🔊 *ENVIANDO* 🔊
 ├───────────────────────┤
@@ -131,24 +137,51 @@ export async function handleAudio(sock, msg, jid, cmdArgs, reply, react) {
         const tempOgg = getRandomFile('ogg');
 
         try {
-            const writer = fs.createWriteStream(tempMp3);
-            const response = await axios({
-                url: mp3Url,
-                method: 'GET',
-                responseType: 'stream',
-                timeout: 30000,
-                maxRedirects: 5,
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+            let downloaded = false;
+            let lastDownloadError = null;
+
+            for (const mediaUrl of mediaCandidates) {
+                try {
+                    const writer = fs.createWriteStream(tempMp3);
+                    const response = await axios({
+                        url: mediaUrl,
+                        method: 'GET',
+                        responseType: 'stream',
+                        timeout: 30000,
+                        maxRedirects: 5,
+                        validateStatus: (status) => status >= 200 && status < 400,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+                        }
+                    });
+
+                    response.data.pipe(writer);
+
+                    await new Promise((resolve, reject) => {
+                        writer.on('finish', resolve);
+                        writer.on('error', reject);
+                    });
+
+                    const stats = await fs.promises.stat(tempMp3);
+                    const sample = await fs.promises.readFile(tempMp3);
+                    const headerText = sample.subarray(0, 400).toString('utf8').toLowerCase();
+                    const isHtml = headerText.includes('<!doctype html') || headerText.includes('<html');
+
+                    if (stats.size < 1024 || isHtml) {
+                        throw new Error('Arquivo baixado não parece áudio válido');
+                    }
+
+                    downloaded = true;
+                    break;
+                } catch (downloadError) {
+                    lastDownloadError = downloadError;
+                    await safeDelete(tempMp3);
                 }
-            });
+            }
 
-            response.data.pipe(writer);
-
-            await new Promise((resolve, reject) => {
-                writer.on('finish', resolve);
-                writer.on('error', reject);
-            });
+            if (!downloaded) {
+                throw lastDownloadError || new Error('Falha ao baixar mídia de áudio');
+            }
 
             // Converter para OGG Opus (compatível com WhatsApp PTT)
             const ffmpegPath = CONFIG.FFMPEG_PATH;
