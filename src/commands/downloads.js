@@ -248,6 +248,41 @@ async function sendDownloadedVideo(sock, msg, jid, outputPath, videoTitle, confi
         else throw new Error('Arquivo não gerado');
     }
 
+    // O WhatsApp no iPhone e mais restritivo com codecs. Um arquivo .mp4 pode
+    // conter VP9/AV1 e tocar no Android, mas nao no iOS. Normalize sempre para
+    // H.264 + AAC, pixel format yuv420p e metadata no inicio do arquivo.
+    const compatiblePath = getRandomFile('mp4');
+    try {
+        await execFilePromise(CONFIG.FFMPEG_PATH, [
+            '-y',
+            '-i', finalPath,
+            '-map', '0:v:0',
+            '-map', '0:a:0?',
+            '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2,fps=30',
+            '-c:v', 'libx264',
+            '-profile:v', 'main',
+            '-level:v', '3.1',
+            '-pix_fmt', 'yuv420p',
+            '-preset', 'veryfast',
+            '-crf', '23',
+            '-tag:v', 'avc1',
+            '-c:a', 'aac',
+            '-profile:a', 'aac_low',
+            '-b:a', '128k',
+            '-ar', '48000',
+            '-ac', '2',
+            '-movflags', '+faststart',
+            compatiblePath
+        ], { timeout: 300000 });
+    } catch (error) {
+        await safeDelete(compatiblePath);
+        throw new Error(`Falha ao converter video para iPhone: ${error.message}`);
+    }
+
+    // O original nao e mais necessario depois da conversao.
+    if (finalPath !== compatiblePath) await safeDelete(finalPath);
+    finalPath = compatiblePath;
+
     // Verificar tamanho
     const stats = await fsp.stat(finalPath);
     const sizeInMB = stats.size / (1024 * 1024);

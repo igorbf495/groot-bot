@@ -190,11 +190,15 @@ export async function handleAudio(sock, msg, jid, cmdArgs, reply, react) {
             const ffmpegArgs = [
                 '-y',
                 '-i', tempMp3,
+                '-vn',
                 '-c:a', 'libopus',
-                '-b:a', '64k', // Qualidade voz
+                '-b:a', '48k', // Perfil de voz compativel com WhatsApp/iOS
                 '-vbr', 'on',
                 '-compression_level', '10',
                 '-application', 'voip', // Otimizado para voz
+                '-ac', '1',
+                '-ar', '48000',
+                '-f', 'ogg',
                 tempOgg
             ];
 
