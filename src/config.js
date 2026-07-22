@@ -70,6 +70,9 @@ export const CONFIG = {
         ADD_FILME: 'addfilme',
         STATUS_FILME: 'statusfilme',
         CANCELAR_FILME: 'cancelarfilme',
+        ADD_TORRENT: 'addtorrent',
+        STATUS_TORRENT: 'statustorrent',
+        CANCELAR_TORRENT: 'cancelartorrent',
 
         // ⬇️ Downloads
         VIDEO: 'video',

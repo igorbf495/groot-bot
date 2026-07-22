@@ -208,6 +208,11 @@ export function menuMusica(reply) {
 │ 🛑 *${CONFIG.PREFIX}cancelarfilme*
 │   └ Apenas o dono do bot
 │
+│ 🧲 *${CONFIG.PREFIX}addtorrent* MAGNET | Nome
+│ 📊 *${CONFIG.PREFIX}statustorrent*
+│ 🛑 *${CONFIG.PREFIX}cancelartorrent*
+│   └ Torrents autorizados/domínio público
+│
 ╰───────────────────────╯`;
     return reply(menu);
 }

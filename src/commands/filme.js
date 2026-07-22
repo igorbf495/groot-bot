@@ -1,6 +1,6 @@
 import { CONFIG } from '../config.js';
 import { createMovieLink, findMovie } from '../movieServer.js';
-import { cancelMovieImport, getMovieImportStatus, startMovieImport } from '../movieImporter.js';
+import { cancelMovieImport, getMovieImportStatus, startMovieImport, startTorrentImport } from '../movieImporter.js';
 
 function titleFromFile(file) {
     const name = file.split(/[\\/]/).pop();
@@ -46,6 +46,26 @@ export async function handleAddFilme(cmdArgs, isOwner, reply, react) {
         await startMovieImport({ url, title, notify: reply });
         await react('⬇️');
         return reply(`⬇️ Download iniciado em segundo plano.\n\n🎬 ${title}\nUse *${CONFIG.PREFIX}statusfilme* para acompanhar.`);
+    } catch (error) {
+        await react('❌');
+        return reply(`❌ Não foi possível iniciar: ${error.message}`);
+    }
+}
+
+export async function handleAddTorrent(cmdArgs, isOwner, reply, react) {
+    if (!isOwner) return reply('❌ Apenas o dono do bot pode gerenciar a biblioteca de filmes.');
+    const separator = cmdArgs.indexOf('|');
+    const magnet = (separator === -1 ? cmdArgs : cmdArgs.slice(0, separator)).trim();
+    const title = (separator === -1 ? '' : cmdArgs.slice(separator + 1)).trim();
+
+    if (!magnet || !title) {
+        return reply(`Uso: *${CONFIG.PREFIX}addtorrent MAGNET | Nome do filme*`);
+    }
+
+    try {
+        await startTorrentImport({ magnet, title, notify: reply });
+        await react('🧲');
+        return reply(`🧲 Torrent iniciado em segundo plano.\n\n🎬 ${title}\nUse *${CONFIG.PREFIX}statustorrent* para acompanhar.`);
     } catch (error) {
         await react('❌');
         return reply(`❌ Não foi possível iniciar: ${error.message}`);

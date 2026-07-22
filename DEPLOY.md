@@ -148,6 +148,9 @@ Depois, ative HTTPS no domínio e reinicie o processo do bot com as variáveis a
 !addfilme URL_DIRETA | Nome do filme
 !statusfilme
 !cancelarfilme
+!addtorrent MAGNET | Nome do filme
+!statustorrent
+!cancelartorrent
 ```
 
 Os comandos de importação são exclusivos do dono do bot. Use somente links diretos de arquivos próprios, licenciados ou de domínio público.

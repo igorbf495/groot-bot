@@ -22,7 +22,7 @@ import { handleBanPromover, handleMarcar, handleRoletaRussa, handleAdd, handleLi
 import { handleStatus, handleMenu, handleHelp, menuSistema } from './src/commands/sistema.js';
 import { handlePlay, menuMusica } from './src/commands/musica.js';
 import { handleAudio } from './src/commands/audio.js';
-import { handleAddFilme, handleCancelarFilme, handleFilme, handleStatusFilme } from './src/commands/filme.js';
+import { handleAddFilme, handleAddTorrent, handleCancelarFilme, handleFilme, handleStatusFilme } from './src/commands/filme.js';
 import { handleVideo, handleTikTok, handleInsta, handleFace, handleTwitter, menuDownloads } from './src/commands/downloads.js';
 import { startMovieServer } from './src/movieServer.js';
 import { 
@@ -42,7 +42,10 @@ const CHAT_ACCESS_COMMANDS = new Set([
     CONFIG.CMDS.CHAT_ID,
     CONFIG.CMDS.ADD_FILME,
     CONFIG.CMDS.STATUS_FILME,
-    CONFIG.CMDS.CANCELAR_FILME
+    CONFIG.CMDS.CANCELAR_FILME,
+    CONFIG.CMDS.ADD_TORRENT,
+    CONFIG.CMDS.STATUS_TORRENT,
+    CONFIG.CMDS.CANCELAR_TORRENT
 ]);
 const COMMAND_GROUPS = {
     todos: ['*'],
@@ -175,7 +178,7 @@ const startBot = async () => {
                     const react = (emoji) => sock.sendMessage(jid, { react: { text: emoji, key: msg.key } });
                     const senderNum = sender.split('@')[0];
                     const donoNum = CONFIG.DONO_BOT.split('@')[0];
-                    const isOwner = senderNum === donoNum;
+                    let isOwner = senderNum === donoNum;
 
                     if (!CHAT_ACCESS_COMMANDS.has(command) && (!isChatAllowed(jid) || !isCommandAllowed(jid, command))) {
                         console.log(`[BLOQUEADO] Comando ${command} nao autorizado no chat ${jid}`);
@@ -187,8 +190,16 @@ const startBot = async () => {
                     let groupMetadata;
                     if (isGroup) {
                         groupMetadata = await sock.groupMetadata(jid);
-                        const participant = groupMetadata.participants.find(p => p.id === sender);
+                        const participant = groupMetadata.participants.find(p =>
+                            p.id === sender || p.lid === sender || p.phoneNumber === sender
+                        );
                         isAdmin = !!(participant?.admin || participant?.superAdmin);
+                        let participantPhone = participant?.phoneNumber;
+                        if (!participantPhone && sender.endsWith('@lid')) {
+                            participantPhone = await sock.signalRepository?.lidMapping?.getPNForLID(sender);
+                        }
+                        const participantNumber = participantPhone?.split('@')[0];
+                        if (participantNumber === donoNum) isOwner = true;
 
                         // Nota: Em grupos com LID, não conseguimos verificar se o bot é admin
                         // A API vai retornar erro se tentarmos executar ação sem permissão
@@ -354,6 +365,15 @@ const startBot = async () => {
                             await handleStatusFilme(isOwner, reply);
                             break;
                         case CONFIG.CMDS.CANCELAR_FILME:
+                            await handleCancelarFilme(isOwner, reply, react);
+                            break;
+                        case CONFIG.CMDS.ADD_TORRENT:
+                            await handleAddTorrent(cmdArgs, isOwner, reply, react);
+                            break;
+                        case CONFIG.CMDS.STATUS_TORRENT:
+                            await handleStatusFilme(isOwner, reply);
+                            break;
+                        case CONFIG.CMDS.CANCELAR_TORRENT:
                             await handleCancelarFilme(isOwner, reply, react);
                             break;
 
@@ -539,6 +559,9 @@ const startBot = async () => {
                         case CONFIG.CMDS.RESETARPJ:
                             const mentionedReset = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
                             await handleResetarPJ(sock, msg, jid, sender, mentionedReset, reply, react, botNumber);
+                            break;
+                        default:
+                            await reply(`❓ Comando desconhecido: *${CONFIG.PREFIX}${command}*\nUse *${CONFIG.PREFIX}menu* para ver os comandos.`);
                             break;
                     }
                     console.log(`[✓] ${command} processado com sucesso`);
