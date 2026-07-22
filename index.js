@@ -22,7 +22,9 @@ import { handleBanPromover, handleMarcar, handleRoletaRussa, handleAdd, handleLi
 import { handleStatus, handleMenu, handleHelp, menuSistema } from './src/commands/sistema.js';
 import { handlePlay, menuMusica } from './src/commands/musica.js';
 import { handleAudio } from './src/commands/audio.js';
+import { handleAddFilme, handleCancelarFilme, handleFilme, handleStatusFilme } from './src/commands/filme.js';
 import { handleVideo, handleTikTok, handleInsta, handleFace, handleTwitter, menuDownloads } from './src/commands/downloads.js';
+import { startMovieServer } from './src/movieServer.js';
 import { 
     handleTutorial, handleCriarPJ, handlePerfil, handleStatus as handleRPGStatus, handleCacar, handleBoss, handleListaBosses, handleMonstros, handleSkill,
     handleDuelo, handleLoja, handleComprar, handleVender, handleEquipar, handleInventario, 
@@ -37,7 +39,10 @@ const CHAT_ACCESS_COMMANDS = new Set([
     CONFIG.CMDS.LIBERAR_CMD,
     CONFIG.CMDS.BLOQUEAR_CMD,
     CONFIG.CMDS.CHATS_BOT,
-    CONFIG.CMDS.CHAT_ID
+    CONFIG.CMDS.CHAT_ID,
+    CONFIG.CMDS.ADD_FILME,
+    CONFIG.CMDS.STATUS_FILME,
+    CONFIG.CMDS.CANCELAR_FILME
 ]);
 const COMMAND_GROUPS = {
     todos: ['*'],
@@ -48,7 +53,7 @@ const COMMAND_GROUPS = {
     midia: [CONFIG.CMDS.MENU_MIDIA, CONFIG.CMDS.STICKER, CONFIG.CMDS.STICKER_FULL, CONFIG.CMDS.TTP, CONFIG.CMDS.VV, CONFIG.CMDS.WW],
     diversao: [CONFIG.CMDS.MENU_DIVERSAO, CONFIG.CMDS.GAY, CONFIG.CMDS.FEIO, CONFIG.CMDS.PICA, CONFIG.CMDS.BOMDIA, CONFIG.CMDS.MOEDA, CONFIG.CMDS.CASAL, CONFIG.CMDS.SORTEIO, CONFIG.CMDS.XINGAR, CONFIG.CMDS.MEME, CONFIG.CMDS.CONSELHO, CONFIG.CMDS.CHANCE, CONFIG.CMDS.TOP5],
     downloads: [CONFIG.CMDS.MENU_DOWNLOADS, CONFIG.CMDS.VIDEO, CONFIG.CMDS.TIKTOK, CONFIG.CMDS.INSTA, CONFIG.CMDS.FACE, CONFIG.CMDS.TWITTER],
-    musica: [CONFIG.CMDS.MENU_MUSICA, CONFIG.CMDS.PLAY, CONFIG.CMDS.AUDIO],
+    musica: [CONFIG.CMDS.MENU_MUSICA, CONFIG.CMDS.PLAY, CONFIG.CMDS.AUDIO, CONFIG.CMDS.FILME],
     admin: [CONFIG.CMDS.MENU_ADMIN, CONFIG.CMDS.ADD, CONFIG.CMDS.LIGAR, CONFIG.CMDS.BAN, CONFIG.CMDS.PROMOVER, CONFIG.CMDS.REBAIXAR, CONFIG.CMDS.MARCAR, CONFIG.CMDS.ROLETARUSSA],
     sistema: [CONFIG.CMDS.MENU_SISTEMA, CONFIG.CMDS.MENU, CONFIG.CMDS.STATUS, CONFIG.CMDS.HELP],
     rpg: [CONFIG.CMDS.MENU_RPG, CONFIG.CMDS.TUTORIAL, CONFIG.CMDS.CRIARPJ, CONFIG.CMDS.PERFIL, CONFIG.CMDS.FICHA, CONFIG.CMDS.RPG_STATUS, CONFIG.CMDS.CACAR, CONFIG.CMDS.BOSS, CONFIG.CMDS.BOSSES, CONFIG.CMDS.MONSTROS, CONFIG.CMDS.SKILL, CONFIG.CMDS.DUELO, CONFIG.CMDS.LOJA, CONFIG.CMDS.COMPRAR, CONFIG.CMDS.VENDER, CONFIG.CMDS.EQUIPAR, CONFIG.CMDS.INVENTARIO, CONFIG.CMDS.USAR, CONFIG.CMDS.CURAR, CONFIG.CMDS.DAILY, CONFIG.CMDS.GOLD, CONFIG.CMDS.RANKING, CONFIG.CMDS.RANKING_ELO, CONFIG.CMDS.RANKING_BOSS, CONFIG.CMDS.ROUBAR, CONFIG.CMDS.QUESTS, CONFIG.CMDS.COMPLETARQUEST, CONFIG.CMDS.RANKING_JOGADOR, CONFIG.CMDS.STATS, CONFIG.CMDS.UPGRADE]
@@ -339,6 +344,18 @@ const startBot = async () => {
                         case CONFIG.CMDS.AUDIO:
                             await handleAudio(sock, msg, jid, cmdArgs, reply, react);
                             break;
+                        case CONFIG.CMDS.FILME:
+                            await handleFilme(cmdArgs, reply, react);
+                            break;
+                        case CONFIG.CMDS.ADD_FILME:
+                            await handleAddFilme(cmdArgs, isOwner, reply, react);
+                            break;
+                        case CONFIG.CMDS.STATUS_FILME:
+                            await handleStatusFilme(isOwner, reply);
+                            break;
+                        case CONFIG.CMDS.CANCELAR_FILME:
+                            await handleCancelarFilme(isOwner, reply, react);
+                            break;
 
                         // ⬇️ DOWNLOADS
                         case CONFIG.CMDS.VIDEO:
@@ -558,6 +575,11 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (err) => {
     console.error('[ERRO CRÍTICO] Promise rejection não tratado:', err.message);
     console.error(err.stack);
+});
+
+startMovieServer().catch(err => {
+    console.error('[ERRO] Falha ao iniciar servidor de filmes:', err);
+    process.exit(1);
 });
 
 startBot().catch(err => {

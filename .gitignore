@@ -57,3 +57,6 @@ data/allowed-chats.json
 
 # Zips
 *.zip
+
+# Biblioteca local de filmes
+filmes/

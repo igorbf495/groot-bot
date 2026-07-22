@@ -13,7 +13,7 @@ sudo apt update && sudo apt upgrade -y
 
 # 2. Instalar dependências do sistema
 echo "📦 Instalando dependências..."
-sudo apt install -y curl git ffmpeg python3
+sudo apt install -y curl git ffmpeg aria2 python3
 
 # 3. Instalar Node.js 20 LTS
 echo "📦 Instalando Node.js 20..."

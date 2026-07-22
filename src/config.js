@@ -66,6 +66,10 @@ export const CONFIG = {
         // 🎵 Música / Áudio
         PLAY: 'play',
         AUDIO: 'audio',
+        FILME: 'filme',
+        ADD_FILME: 'addfilme',
+        STATUS_FILME: 'statusfilme',
+        CANCELAR_FILME: 'cancelarfilme',
 
         // ⬇️ Downloads
         VIDEO: 'video',
@@ -122,7 +126,13 @@ export const CONFIG = {
     },
     PACK: 'groot',
     AUTHOR: 'groot-bot',
-    TEMP_DIR: path.join(os.tmpdir(), 'groot-bot-free')
+    TEMP_DIR: path.join(os.tmpdir(), 'groot-bot-free'),
+    MOVIES_DIR: path.resolve(process.env.MOVIES_DIR || path.join(process.cwd(), 'filmes')),
+    MOVIE_PUBLIC_URL: (process.env.MOVIE_PUBLIC_URL || 'https://filmes.grootlab.xyz').replace(/\/$/, ''),
+    MOVIE_SERVER_HOST: process.env.MOVIE_SERVER_HOST || '127.0.0.1',
+    MOVIE_SERVER_PORT: Number(process.env.MOVIE_SERVER_PORT || 3000),
+    MOVIE_LINK_HOURS: Number(process.env.MOVIE_LINK_HOURS || 6),
+    MOVIE_MAX_GB: Number(process.env.MOVIE_MAX_GB || 15)
 };
 
 export default CONFIG;

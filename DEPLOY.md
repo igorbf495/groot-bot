@@ -24,7 +24,7 @@ chmod +x install-ubuntu.sh
 
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y curl git ffmpeg python3
+sudo apt install -y curl git ffmpeg aria2 python3
 ```
 
 ### 2. Node.js 20
@@ -105,3 +105,49 @@ ffmpeg -version
 # Verificar yt-dlp
 yt-dlp --version
 ```
+
+## Player de filmes
+
+Coloque apenas vídeos que você tenha autorização para disponibilizar na pasta `filmes/` do projeto. MP4 com vídeo H.264 e áudio AAC oferece a melhor compatibilidade com iPhone, Android e PC.
+
+Variáveis opcionais do serviço:
+
+```bash
+MOVIES_DIR=/caminho/para/filmes
+MOVIE_PUBLIC_URL=https://filmes.grootlab.xyz
+MOVIE_SERVER_HOST=127.0.0.1
+MOVIE_SERVER_PORT=3000
+MOVIE_LINK_HOURS=6
+MOVIE_MAX_GB=15
+MOVIE_LINK_SECRET=troque-por-um-segredo-longo-e-aleatorio
+```
+
+Crie um registro DNS `A` para `filmes.grootlab.xyz` apontando para `45.164.135.145`. Exemplo de proxy reverso Nginx:
+
+```nginx
+server {
+    listen 80;
+    server_name filmes.grootlab.xyz;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
+
+Depois, ative HTTPS no domínio e reinicie o processo do bot com as variáveis atualizadas. No WhatsApp:
+
+```text
+!filme
+!filme nome do filme
+!addfilme URL_DIRETA | Nome do filme
+!statusfilme
+!cancelarfilme
+```
+
+Os comandos de importação são exclusivos do dono do bot. Use somente links diretos de arquivos próprios, licenciados ou de domínio público.

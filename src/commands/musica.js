@@ -200,6 +200,14 @@ export function menuMusica(reply) {
 │ 🔊 *${CONFIG.PREFIX}audio* <nome>
 │   └ Efeitos do MyInstants
 │
+│ 🎬 *${CONFIG.PREFIX}filme* [nome]
+│   └ Lista ou abre um filme da VPS
+│
+│ ⬇️ *${CONFIG.PREFIX}addfilme* URL | Nome
+│ 📊 *${CONFIG.PREFIX}statusfilme*
+│ 🛑 *${CONFIG.PREFIX}cancelarfilme*
+│   └ Apenas o dono do bot
+│
 ╰───────────────────────╯`;
     return reply(menu);
 }
