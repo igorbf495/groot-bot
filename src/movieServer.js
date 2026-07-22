@@ -144,9 +144,9 @@ function sendProviderPlayer(res, embedUrl, title) {
     const safeUrl = escapeHtml(embedUrl);
     const html = `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="referrer" content="no-referrer"><title>${safeTitle} | Groot Filmes</title><style>
+<meta name="referrer" content="origin"><title>${safeTitle} | Groot Filmes</title><style>
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#07110d;color:#fff;font-family:system-ui,-apple-system,sans-serif;display:grid;place-items:center;padding:14px}.box{width:min(1200px,100%)}h1{font-size:clamp(18px,4vw,28px);margin:0 0 12px;color:#69f0ae}.frame{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;box-shadow:0 18px 50px #0008}iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.hint{color:#aab8b1;font-size:13px;margin-top:10px}</style></head>
-<body><main class="box"><h1>🎬 ${safeTitle}</h1><div class="frame"><iframe src="${safeUrl}" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allowfullscreen></iframe></div><p class="hint">Groot Filmes · Conteúdo fornecido por provedor licenciado · Link temporário</p></main></body></html>`;
+<body><main class="box"><h1>🎬 ${safeTitle}</h1><div class="frame"><iframe src="${safeUrl}" referrerpolicy="origin" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allowfullscreen></iframe></div><p class="hint">Groot Filmes · Conteúdo fornecido por provedor licenciado · Link temporário</p></main></body></html>`;
     res.writeHead(200, {
         'Content-Type': 'text/html; charset=utf-8',
         'Content-Length': Buffer.byteLength(html),
